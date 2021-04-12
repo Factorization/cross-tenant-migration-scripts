@@ -375,7 +375,7 @@ PROCESS {
 			}
 			Catch {
 				Write-Verbose "Failed to export user $SourceEmailAddress"
-				$ErrObject = @{
+				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
 					"RecipientType"        = $Member.RecipientType
 					"RecipientTypeDetails" = $Member.RecipientTypeDetails
@@ -395,7 +395,7 @@ PROCESS {
 			Catch {
 				$err = $_
 				Write-Verbose "Failed to export group $SourceEmailAddress"
-				$ErrObject = @{
+				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
 					"RecipientType"        = $Member.RecipientType
 					"RecipientTypeDetails" = $Member.RecipientTypeDetails
@@ -414,7 +414,7 @@ PROCESS {
 			Catch {
 				$err = $_
 				Write-Verbose "Failed to export unified group $SourceEmailAddress"
-				$ErrObject = @{
+				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
 					"RecipientType"        = $Member.RecipientType
 					"RecipientTypeDetails" = $Member.RecipientTypeDetails
