@@ -50,7 +50,7 @@
 	#######################################################
 #>
 
-#Requires -Modules ExchangeOnlineManagement, AzureAD, ActiveDirectory
+#Requires -Modules ExchangeOnlineManagement, AzureAD, ActiveDirectory, MSOnline
 
 [CmdletBinding()]
 Param(
@@ -80,7 +80,7 @@ Param(
 	$IncludeInboxRules,
 
 	# Include mailbox permissions
-	[Parameter(Mandatory=$false)]
+	[Parameter(Mandatory = $false)]
 	[switch]
 	$IncludeMailboxPermissions
 )
@@ -114,6 +114,12 @@ BEGIN {
 			Exit
 		}
 		Try {
+			Get-MsolAccountSku | Out-Null
+		}
+		Catch {
+			Write-Host "Not connected to MSOnline Service. Please run Connect-MsolService before running this script." -ForegroundColor Red
+		}
+		Try {
 			Get-Command Get-AdUser | Out-Null
 		}
 		catch {
@@ -140,7 +146,7 @@ BEGIN {
 		Write-Verbose "Exporting mailbox info to XML..."
 		ExportXML -Object $Mailbox -Path $GetMailboxOutput -Email $SourceEmailAddress
 
-		if($IncludeMailboxStats){
+		if ($IncludeMailboxStats) {
 			Write-Verbose "Getting mailbox statistics..."
 			$Statistics = Get-EXOMailboxStatistics $SourceEmailAddress -PropertySets All
 			Write-Verbose "Exporting mailbox statistics to XML..."
@@ -151,6 +157,11 @@ BEGIN {
 		$AzureADUser = Get-AzureADUser -ObjectId $Mailbox.UserPrincipalName
 		Write-Verbose "Exporting Azure AD user info to XML..."
 		ExportXML -Object $AzureADUser -Path $GetAzureADUserOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting MSOL user info..."
+		$MSOLUser = Get-MsolUser -UserPrincipalName $Mailbox.UserPrincipalName
+		Write-Verbose "Exporting Msol user info to XML..."
+		ExportXML -Object $MSOLUser -Path $GetMsolUserOutput -Email $SourceEmailAddress
 
 		if ($mailbox.IsDirSynced) {
 			Write-Verbose "Getting AD user info..."
@@ -163,28 +174,28 @@ BEGIN {
 			$ADUser = $null
 		}
 
-		if($IncludeMailboxPermissions){
+		if ($IncludeMailboxPermissions) {
 			Write-Verbose "Getting recipient permissions..."
 			$RecipientPermission = Get-EXORecipientPermission $SourceEmailAddress
 			Write-Verbose "Exporting recipient permissions to XML..."
 			ExportXML -Object $RecipientPermission -Path $GetRecipientPermissionOutput -Email $SourceEmailAddress
 		}
 
-		if($IncludeMailboxPermissions){
+		if ($IncludeMailboxPermissions) {
 			Write-Verbose "Getting mailbox folder permissions..."
 			$MailboxFolderPermission = Get-EXOMailboxFolderPermission $SourceEmailAddress
 			Write-Verbose "Exporting mailbox folder permissions to XML..."
 			ExportXML -Object $MailboxFolderPermission -Path $GetMailboxFolderPermissionOutput -Email $SourceEmailAddress
 		}
 
-		if($IncludeMailboxStats){
+		if ($IncludeMailboxStats) {
 			Write-Verbose "Getting mailbox folder statistics..."
 			$MailboxFolderStatistics = Get-EXOMailboxFolderStatistics $SourceEmailAddress
 			Write-Verbose "Exporting mailbox folder statistics to XML..."
 			ExportXML -Object $MailboxFolderStatistics -Path $GetMailboxFolderStatistics -Email $SourceEmailAddress
 		}
 
-		if($IncludeMailboxStats){
+		if ($IncludeMailboxStats) {
 			Write-Verbose "Getting mailbox sub folder permissions..."
 			$Folders = $MailboxFolderStatistics.folderpath | ForEach-Object { $_.replace("/", "\") }
 			$Permissions = $Folders | ForEach-Object { Get-EXOMailboxFolderPermission "$($SourceEmailAddress):$_" -ErrorAction silentlycontinue }
@@ -192,7 +203,7 @@ BEGIN {
 			ExportXML -Object $Permissions -Path $GetMailboxSubFolderPermissionOutput -Email $SourceEmailAddress
 		}
 
-		if($IncludeInboxRules){
+		if ($IncludeInboxRules) {
 			Write-Verbose "Getting inbox rules..."
 			$Rules = Get-InboxRule -Mailbox $SourceEmailAddress
 			Write-Verbose "Exporting inbox rules to XML..."
@@ -321,6 +332,7 @@ BEGIN {
 	$GetMailboxOutput = Join-Path $Root "Mailbox_Output_XMLs"
 	$GetMailboxStatisticsOutput = Join-Path $Root "Mailbox_Statistics_XMLs"
 	$GetAzureADUserOutput = Join-Path $Root "Azure_AD_User_Output_XMLs"
+	$GetMsolUserOutput = Join-Path $Root "MSOL_User_Output_XMls"
 	$GetADUserOutput = Join-Path $Root "AD_User_Output_XMLs"
 	$GetRecipientPermissionOutput = Join-Path $Root "Recipient_Permission_XMLs"
 	$GetMailboxFolderPermissionOutput = Join-Path $Root "Mailbox_Folder_Permission_XMLs"
@@ -339,6 +351,7 @@ BEGIN {
 		$GetMailboxOutput,
 		$GetMailboxStatisticsOutput,
 		$GetAzureADUserOutput,
+		$GetMsolUserOutput,
 		$GetADUserOutput,
 		$GetRecipientPermissionOutput,
 		$GetMailboxFolderPermissionOutput,
@@ -406,7 +419,7 @@ PROCESS {
 		}
 
 		# unified groups (O365 Groups Teams)
-		elseif($Member.RecipientTypeDetails -eq "GroupMailbox"){
+		elseif ($Member.RecipientTypeDetails -eq "GroupMailbox") {
 			Write-Verbose "Working on unified group $SourceEmailAddress..."
 			try {
 				ExportUnifiedGroupInfo -Email $SourceEmailAddress
