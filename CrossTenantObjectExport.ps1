@@ -118,6 +118,7 @@ BEGIN {
 		}
 		Catch {
 			Write-Host "Not connected to MSOnline Service. Please run Connect-MsolService before running this script." -ForegroundColor Red
+			Exit
 		}
 		Try {
 			Get-Command Get-AdUser | Out-Null
