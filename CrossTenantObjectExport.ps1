@@ -440,7 +440,7 @@ PROCESS {
 
 		# unknown object
 		else {
-			$ErrObject = @{
+			$ErrObject = [PSCustomObject]@{
 				"Email"                = $SourceEmailAddress
 				"RecipientType"        = $Member.RecipientType
 				"RecipientTypeDetails" = $Member.RecipientTypeDetails
