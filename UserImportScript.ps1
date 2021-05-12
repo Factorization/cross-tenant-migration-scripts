@@ -22,7 +22,11 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string[]]
-    $InputFiles
+    $InputFiles,
+
+    [Parameter(Mandatory = $true)]
+    [string]
+    $Server
 )
 BEGIN {
     #########################
@@ -38,7 +42,7 @@ BEGIN {
     $MasterEquipmentMailboxFileOutput = Join-Path $Root "Master _Equipment_Mailbox_File_$DATA.csv"
     $MasterRoomMailboxFileOutput = Join-Path $Root "Master_Room_Mailbox_File_$DATE.csv"
     $ErrorFileOutput = Join-Path $Root "Error_File_$DATE.csv"
-    $SuccessFileOutput = Join-Path $Root "Success_File_$DATE.csv"
+    # $SuccessFileOutput = Join-Path $Root "Success_File_$DATE.csv"
 
     # Map of user objects to specific OUs
     $OU_MAP = @{
@@ -232,42 +236,31 @@ BEGIN {
     }
     function ImportUser($Data) {
         $OldUPN = $Data.UserPrincipalName
-        $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterUsers
-        if (-not $NewUPN) {
-            WriteLog "Creating AD user for user mailbox..."
-            $ADUser = CreateADUser -Data $Data
-            WriteLog "Done creating AD user."
-            if (-not $ADUser) { return $false }
+        $MailboxType = $Data.RecipientTypeDetails
+        if ($MailboxType -eq "UserMailbox") {
+            $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterUsers
         }
-    }
-    function ImportSharedMailbox($Data) {
-        $OldUPN = $Data.UserPrincipalName
-        $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterSharedMailboxes
-        if (-not $NewUPN) {
-            WriteLog "Creating AD user for shared mailbox..."
-            $ADUser = CreateADUser -Data $Data
-            WriteLog "Done creating AD user."
-            if (-not $ADUser) { return $false }
+        elseif ($MailboxType -eq "SharedMailbox") {
+            $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterSharedMailboxes
         }
-    }
-    function ImportEquipmentMailbox($Data) {
-        $OldUPN = $Data.UserPrincipalName
-        $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterEquipmentMailboxes
-        if (-not $NewUPN) {
-            WriteLog "Creating AD user for equipment mailbox..."
-            $ADUser = CreateADUser -Data $Data
-            WriteLog "Done creating AD user."
-            if (-not $ADUser) { return $false }
+        elseif ($MailboxType -eq "EquipmentMailbox") {
+            $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterEquipmentMailboxes
         }
-    }
-    function ImportRoomMailbox($Data) {
-        $OldUPN = $Data.UserPrincipalName
-        $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterRoomMailboxes
+        elseif ($MailboxType -eq "RoomMailbox") {
+            $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterRoomMailboxes
+        }
+        else {
+            $err= "Invalid mailbox type for '$OldUPN' and type '$MailboxType'."
+            WriteLog $err
+            $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
+            WriteCSVOutput -Data $Data -File $ErrorFileOutput
+            return $false
+        }
         if (-not $NewUPN) {
-            WriteLog "Creating AD user for room mailbox..."
-            $ADUser = CreateADUser -Data $Data
+            WriteLog "Creating AD user for $MailboxType..."
+            $NewUPN = CreateADUser -Data $Data
             WriteLog "Done creating AD user."
-            if (-not $ADUser) { return $false }
+            if ($NewUPN -eq $false) { return $false }
         }
     }
     function CheckUserInMasterFile($OldUPN, $MasterFile) {
@@ -277,11 +270,15 @@ BEGIN {
         $NewUPN = $MasterFile | Where-Object { $_.OldUPN -eq "$OldUPN" } | Select-Object -ExpandProperty UPN
         return $NewUPN
     }
+    function SetUserAttributes($Data, $NewUPN) {
+        $ADUser = GetADUser -NewUPN $NewUPN
+        if($ADUser -eq $false){return $false}
+    }
     function CreateADUser($Data) {
         Try {
             $OldUPN = $Data.UserPrincipalName
             $MailboxType = $Data.RecipientTypeDetails
-            $NewUPN = GenerateUPN -OldUPN $OldUPN
+            $NewUPN = GetUPN -OldUPN $OldUPN
             $NewSamAccountName = ($NewUPN -split "@")[0]
             $OU = GetOU -OldUPN $OldUPN -MailboxType $MailboxType
             $NewDisplayName = GetDisplayName -OldDisplayName $Data.DisplayName
@@ -310,7 +307,7 @@ BEGIN {
             if ($LastName) {
                 $Attributes.SurName = $LastName
             }
-            $ADUser = "AD Object" # New-ADUser @Attributes -Passthru
+            # New-ADUser @Attributes -Server $Server
 
             $Result = [PSCustomObject]@{
                 OldUPN    = $OldUPN
@@ -323,7 +320,7 @@ BEGIN {
             WriteMasterFile -Data $Result -MailboxType $MailboxType
             WriteLog "Done writing master file."
 
-            return $ADUser
+            return $NewUPN
         }
         Catch {
             $err = $_
@@ -333,7 +330,7 @@ BEGIN {
             return $false
         }
     }
-    function GenerateUPN($OldUPN) {
+    function GetUPN($OldUPN) {
         $Prefix = ($OldUPN -split "@")[0]
         if (-not $Prefix) {
             Throw "UPN prefix error for '$OldUPN'."
@@ -384,6 +381,20 @@ BEGIN {
         $Password = Get-Password -PasswordLength 15 -Count 1 -InputStrings $characters
         return $Password
     }
+    function GetADUser($NewUPN) {
+        Try {
+            $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$NewUPN'" -Server $Server -Properties *
+            if (-not $ADUser) {
+                throw "Failed to find AD User with UPN '$NewUPN'"
+            }
+            return $ADUser
+        }
+        Catch {
+            $err = $_
+            WriteLog "Error getting AD user. Error: $err"
+            return $false
+        }
+    }
 
 }
 PROCESS {
@@ -403,7 +414,7 @@ PROCESS {
     CreateFile -Path $MasterEquipmentMailboxFileOutput
     CreateFile -Path $MasterRoomMailboxFileOutput
     CreateFile -Path $ErrorFileOutput
-    CreateFile -Path $SuccessFileOutput
+    # CreateFile -Path $SuccessFileOutput
     WriteLog "Done creating output files."
 
     # Import master files for User, Share, Equipment and Room
@@ -430,28 +441,13 @@ PROCESS {
         Write-Progress -Id 1 -Activity "Importing users..." -Status "Users: [$i/$Total] | Errors: $ErrorCount" -PercentComplete ($i / $Total * 100)
         $i++
 
-        $MailboxType = $Data.RecipientTypeDetails
-        if ($MailboxType -eq "UserMailbox") {
-            $Result = ImportUser -Data $Data
-        }
-        elseif ($MailboxType -eq "SharedMailbox") {
-            $Result = ImportSharedMailbox -Data $Data
-        }
-        elseif ($MailboxType -eq "EquipmentMailbox") {
-            $Result = ImportEquipmentMailbox -Data $Data
-        }
-        elseif ($MailboxType -eq "RoomMailbox") {
-            $Result = ImportRoomMailbox -Data $Data
-        }
-        else {
-            $Result = $false
-        }
+        $Result = ImportUser -Data $Data
         if ($Result -eq $false) {
             $ErrorCount += 1
         }
         WriteLog "Done importing user."
     }
-
+    WriteLog "Done importing users."
     # Check if user in master file
     # if in master file, get ad user
     # if get user fails, log error and continue
