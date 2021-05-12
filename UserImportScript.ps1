@@ -39,7 +39,7 @@ BEGIN {
     $LogFile = Join-Path $Root "Log_File_$DATE.log"
     $MasterUserFileOutput = Join-Path $Root "Master_Users_File_$DATE.csv"
     $MasterSharedMailboxFileOutput = Join-Path $Root "Master_Shared_Mailbox_File_$DATE.csv"
-    $MasterEquipmentMailboxFileOutput = Join-Path $Root "Master _Equipment_Mailbox_File_$DATA.csv"
+    $MasterEquipmentMailboxFileOutput = Join-Path $Root "Master_Equipment_Mailbox_File_$DATA.csv"
     $MasterRoomMailboxFileOutput = Join-Path $Root "Master_Room_Mailbox_File_$DATE.csv"
     $ErrorFileOutput = Join-Path $Root "Error_File_$DATE.csv"
     # $SuccessFileOutput = Join-Path $Root "Success_File_$DATE.csv"
@@ -138,7 +138,8 @@ BEGIN {
         "UPN",
         "FirstName",
         "LastName",
-        "Password"
+        "Password",
+        "CreatedDate"
     )
 
     #########################
@@ -187,7 +188,7 @@ BEGIN {
         }
         WriteCSVOutput -Data $Data -File $File
     }
-    function ImportMasterFile($File, $Name) {
+    function ImportMasterFile($File, $Name, $OutputFile) {
         if (-not $File) {
             WriteLog "No $Name master file provided."
             return @()
@@ -195,6 +196,7 @@ BEGIN {
         WriteLog "Importing $Name master file $File..."
         $Results = Import-Csv -LiteralPath $File
         if (TestRequiredProperties -Data $Results -RequiredProperties $Required_Master_File_Properties) {
+            $Results | Export-Csv -NoTypeInformation -LiteralPath $OutputFile
             return $Results
         }
         WriteLog "$Name Master file '$File' incorrect CSV columns. Exiting..." -isError
@@ -219,7 +221,7 @@ BEGIN {
     function TestRequiredProperties($Data, $RequiredProperties) {
         foreach ($Item in $Data) {
             $Properties = $Item | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | Sort-Object
-            $isEqual = @(Compare-Object $Properties $RequiredProperties -SyncWindow 0).Length -eq 0
+            $isEqual = @(Compare-Object $Properties $RequiredProperties).Length -eq 0
             if ( -not $isEqual) {
                 return $false
             }
@@ -250,18 +252,26 @@ BEGIN {
             $NewUPN = CheckUserInMasterFile -OldUPN $OldUPN -MasterFile $MasterRoomMailboxes
         }
         else {
-            $err= "Invalid mailbox type for '$OldUPN' and type '$MailboxType'."
+            $err = "Invalid mailbox type for '$OldUPN' and type '$MailboxType'."
             WriteLog $err
             $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
             WriteCSVOutput -Data $Data -File $ErrorFileOutput
             return $false
         }
+
+        # Create user
         if (-not $NewUPN) {
             WriteLog "Creating AD user for $MailboxType..."
             $NewUPN = CreateADUser -Data $Data
             WriteLog "Done creating AD user."
-            if ($NewUPN -eq $false) { return $false }
+            if ($NewUPN -eq $false) {
+                return $false
+            }
         }
+        # Update user attributes
+        # $Result = SetUserAttributes -Data $Date -NewUPN $NewUPN
+        # return $Result
+
     }
     function CheckUserInMasterFile($OldUPN, $MasterFile) {
         If (-not $MasterFile) {
@@ -272,7 +282,13 @@ BEGIN {
     }
     function SetUserAttributes($Data, $NewUPN) {
         $ADUser = GetADUser -NewUPN $NewUPN
-        if($ADUser -eq $false){return $false}
+        if ($ADUser -eq $false) {
+            $err = "Failed to find AD user with UPN '$NewUPN'."
+            WriteLog $err
+            $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
+            WriteCSVOutput -Data $Data -File $ErrorFileOutput
+            return $false
+        }
     }
     function CreateADUser($Data) {
         Try {
@@ -310,11 +326,12 @@ BEGIN {
             # New-ADUser @Attributes -Server $Server
 
             $Result = [PSCustomObject]@{
-                OldUPN    = $OldUPN
-                UPN       = $NewUPN
-                FirstName = $FirstName
-                LastName  = $LastName
-                Password  = $Password
+                OldUPN      = $OldUPN
+                UPN         = $NewUPN
+                FirstName   = $FirstName
+                LastName    = $LastName
+                Password    = $Password
+                CreatedDate = $DATE
             }
             WriteLog "Writing master file..."
             WriteMasterFile -Data $Result -MailboxType $MailboxType
@@ -414,15 +431,14 @@ PROCESS {
     CreateFile -Path $MasterEquipmentMailboxFileOutput
     CreateFile -Path $MasterRoomMailboxFileOutput
     CreateFile -Path $ErrorFileOutput
-    # CreateFile -Path $SuccessFileOutput
     WriteLog "Done creating output files."
 
     # Import master files for User, Share, Equipment and Room
     WriteLog "Importing master files..."
-    $MasterUsers = ImportMasterFile -File $MasterUserFile -Name Users
-    $MasterSharedMailboxes = ImportMasterFile -File $MasterSharedMailboxFile -Name Shared
-    $MasterEquipmentMailboxes = ImportMasterFile -File $MasterEquipmentMailboxFile -Name Equipment
-    $MasterRoomMailboxes = ImportMasterFile -File $MasterRoomMailboxFile -Name Room
+    $MasterUsers = ImportMasterFile -File $MasterUserFile -Name Users -OutputFile $MasterUserFileOutput
+    $MasterSharedMailboxes = ImportMasterFile -File $MasterSharedMailboxFile -Name Shared -OutputFile $MasterSharedMailboxFileOutput
+    $MasterEquipmentMailboxes = ImportMasterFile -File $MasterEquipmentMailboxFile -Name Equipment -OutputFile $MasterEquipmentMailboxFileOutput
+    $MasterRoomMailboxes = ImportMasterFile -File $MasterRoomMailboxFile -Name Room -OutputFile $MasterRoomMailboxFileOutput
     WriteLog "Done importing master files."
 
     # Import input files
