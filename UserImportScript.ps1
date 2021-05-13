@@ -32,7 +32,7 @@ param (
     [pscredential]
     $Credential = (Get-Credential),
 
-    [Parameter(Mandatory=$false)]
+    [Parameter(Mandatory = $false)]
     [switch]
     $MakeChanges
 )
@@ -57,24 +57,24 @@ BEGIN {
     # Map of user objects to specific OUs
     $OU_MAP = @{
         "UserMailbox"      = @{
-            "DCA"  = "USER/DCA"
-            "CDFA" = "USER/CDFA"
-            "CDPH" = "USER/CDPH"
+            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "UOU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "SharedMailbox"    = @{
-            "DCA"  = "Shared/DCA"
-            "CDFA" = "Shared/CDFA"
-            "CDPH" = "Shared/CDPH"
+            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "EquipmentMailbox" = @{
-            "DCA"  = "Equip/DCA"
-            "CDFA" = "Equip/CDFA"
-            "CDPH" = "Equip/CDPH"
+            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "RoomMailbox"      = @{
-            "DCA"  = "Room/DCA"
-            "CDFA" = "Room/CDFA"
-            "CDPH" = "Room/CDPH"
+            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
     }
 
@@ -287,7 +287,7 @@ BEGIN {
 
         # Rename AD Object
         $Result = RenameADUser -NewUPN $NewUPN
-        if ($Result -eq $false){
+        if ($Result -eq $false) {
             return $false
         }
         return $true
@@ -299,7 +299,7 @@ BEGIN {
         $NewUPN = $MasterFile | Where-Object { $_.OldUPN -eq "$OldUPN" } | Select-Object -ExpandProperty UPN
         return $NewUPN
     }
-    function RenameADUser($NewUPN){
+    function RenameADUser($NewUPN) {
         WriteLog "Renaming user object..."
         $ADUser = GetADUser -NewUPN $NewUPN
         if ($ADUser -eq $false) {
@@ -311,15 +311,15 @@ BEGIN {
         }
         $Name = $ADUser.Name
         $DisplayName = $ADUser.DisplayName
-        if($Name -ne $DisplayName){
-            Try{
-                if($MakeChanges){
+        if ($Name -ne $DisplayName) {
+            Try {
+                if ($MakeChanges) {
                     $ADUser | Rename-ADObject -NewName $DisplayName -Server $Server -Credential $Credential
                 }
                 WriteLog "Successfully renamed from '$Name' to '$DisplayName'"
                 return $true
             }
-            Catch{
+            Catch {
                 $err = $_
                 WriteLog "Error renaming user. Error: $err"
                 $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
@@ -327,7 +327,7 @@ BEGIN {
                 return $false
             }
         }
-        else{
+        else {
             WriteLog "Rename not needed."
             return $true
         }
@@ -400,7 +400,7 @@ BEGIN {
                 BackupADUser -ADUser $ADUser
                 WriteLog "Done backing up user."
                 WriteLog "Writing attributes $Attributes"
-                if($MakeChanges){
+                if ($MakeChanges) {
                     Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
                 }
                 WriteLog "Done writing attributes."
@@ -502,7 +502,7 @@ BEGIN {
             if ($LastName) {
                 $Attributes.SurName = $LastName
             }
-            if($MakeChanges){
+            if ($MakeChanges) {
                 New-ADUser @Attributes -Server $Server -Credential $Credential
             }
 
