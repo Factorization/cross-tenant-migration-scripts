@@ -401,7 +401,7 @@ BEGIN {
                 WriteLog "Done backing up user."
                 WriteLog "Writing attributes $($Attributes|Out-string)."
                 if ($MakeChanges) {
-                    Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
+                    $ADUser | Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
                 }
                 WriteLog "Done writing attributes."
                 return $true
@@ -479,14 +479,14 @@ BEGIN {
             $FirstName = $Data.FirstName
             $LastName = $Data.LastName
             $Attributes = @{
-                Name              = "$NewDisplayName"
-                DisplayName       = "$NewDisplayName"
-                UserPrincipalName = "$NewUPN"
-                Path              = "$OU"
-                SamAccountName    = "$NewSamAccountName"
+                Name              = $NewDisplayName
+                DisplayName       = $NewDisplayName
+                UserPrincipalName = $NewUPN
+                Path              = $OU
+                SamAccountName    = $NewSamAccountName
                 AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
-                Company           = "$COMPANY"
-                Department        = "$DEPARTMENT"
+                Company           = $COMPANY
+                Department        = $DEPARTMENT
                 # OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
             }
             if ($MailboxType -eq "UserMailbox") {
