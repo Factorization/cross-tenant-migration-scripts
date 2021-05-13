@@ -354,7 +354,7 @@ BEGIN {
             # @{Name="Manager"},
             @{Name = "Title" },
             @{Name = "HomePhone" },
-            @{Name = "Mobile" },
+            @{Name = "MobilePhone"; ADName = "mobile" },
             # @{Name="OtherHomePhone"},
             @{Name = "OtherTelephone" },
             @{Name = "Phone"; ADName = "telephoneNumber" },
