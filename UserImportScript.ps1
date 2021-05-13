@@ -399,7 +399,7 @@ BEGIN {
                 WriteLog "Backing up user..."
                 BackupADUser -ADUser $ADUser
                 WriteLog "Done backing up user."
-                WriteLog "Writing attributes $Attributes"
+                WriteLog "Writing attributes $($Attributes|Out-string)."
                 if ($MakeChanges) {
                     Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
                 }
@@ -503,7 +503,7 @@ BEGIN {
                 $Attributes.SurName = $LastName
             }
             if ($MakeChanges) {
-                WriteLog "Creating user with attributes $Attributes."
+                WriteLog "Creating user with attributes $($Attributes|Out-String)."
                 New-ADUser @Attributes -Server $Server -Credential $Credential
             }
 
