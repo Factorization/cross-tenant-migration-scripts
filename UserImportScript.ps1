@@ -503,6 +503,7 @@ BEGIN {
                 $Attributes.SurName = $LastName
             }
             if ($MakeChanges) {
+                WriteLog "Creating user with attributes $Attributes."
                 New-ADUser @Attributes -Server $Server -Credential $Credential
             }
 
