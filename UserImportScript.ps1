@@ -435,7 +435,8 @@ BEGIN {
                 $NewValue = GetDisplayName -OldDisplayName $Data.DisplayName
             }
             elseif ($Name -eq "PrimarySmtpAddress") {
-                $NewValue = $ADUser.UserPrincipalName
+                # $NewValue = $ADUser.UserPrincipalName
+                $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@cannabis.ca.gov"
             }
             elseif ($Name -eq "Company") {
                 $NewValue = $COMPANY
@@ -493,7 +494,6 @@ BEGIN {
                 AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
                 Company           = $COMPANY
                 Department        = $DEPARTMENT
-                # OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
             }
             if ($MailboxType -eq "UserMailbox") {
                 $Attributes.Enabled = $true
