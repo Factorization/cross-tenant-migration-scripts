@@ -346,7 +346,7 @@ BEGIN {
             @{Name = "DisplayName"; Custom = $true },
             @{Name = "FirstName"; ADName = "GivenName" },
             @{Name = "LastName"; ADName = "SurName" },
-            @{Name = "PrimarySmtpAddress"; ADName = "EmailAddress"; Custom = $true },
+            @{Name = "PrimarySmtpAddress"; ADName = "mail"; Custom = $true },
             # @{Name = "LegacyExchangeDN"; Custom = $true },
             @{Name = "EmailAddresses"; Custom = $true },
             @{Name = "Company"; Custom = $true },
