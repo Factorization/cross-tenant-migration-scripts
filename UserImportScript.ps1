@@ -357,7 +357,7 @@ BEGIN {
             @{Name = "MobilePhone" },
             # @{Name="OtherHomePhone"},
             @{Name = "OtherTelephone" },
-            @{Name = "Phone"; ADName = "OfficePhone" },
+            @{Name = "Phone"; ADName = "telephoneNumber" },
             @{Name = "Fax" },
             # @{Name="OtherFax"},
             @{Name = "City" },
