@@ -26,7 +26,15 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string]
-    $Server
+    $Server,
+
+    [Parameter(Mandatory = $true)]
+    [pscredential]
+    $Credential = (Get-Credential),
+
+    [Parameter(Mandatory=$false)]
+    [switch]
+    $MakeChanges
 )
 BEGIN {
     #########################
@@ -39,10 +47,12 @@ BEGIN {
     $LogFile = Join-Path $Root "Log_File_$DATE.log"
     $MasterUserFileOutput = Join-Path $Root "Master_Users_File_$DATE.csv"
     $MasterSharedMailboxFileOutput = Join-Path $Root "Master_Shared_Mailbox_File_$DATE.csv"
-    $MasterEquipmentMailboxFileOutput = Join-Path $Root "Master_Equipment_Mailbox_File_$DATA.csv"
+    $MasterEquipmentMailboxFileOutput = Join-Path $Root "Master_Equipment_Mailbox_File_$DATE.csv"
     $MasterRoomMailboxFileOutput = Join-Path $Root "Master_Room_Mailbox_File_$DATE.csv"
     $ErrorFileOutput = Join-Path $Root "Error_File_$DATE.csv"
-    # $SuccessFileOutput = Join-Path $Root "Success_File_$DATE.csv"
+
+    $COMPANY = "California Department of Cannabis Control"
+    $DEPARTMENT = "DCC"
 
     # Map of user objects to specific OUs
     $OU_MAP = @{
@@ -268,10 +278,19 @@ BEGIN {
                 return $false
             }
         }
-        # Update user attributes
-        # $Result = SetUserAttributes -Data $Date -NewUPN $NewUPN
-        # return $Result
 
+        # Update user attributes
+        $Result = SetUserAttributes -Data $Data -NewUPN $NewUPN
+        if ($Result -eq $false) {
+            return $false
+        }
+
+        # Rename AD Object
+        $Result = RenameADUser -NewUPN $NewUPN
+        if ($Result -eq $false){
+            return $false
+        }
+        return $true
     }
     function CheckUserInMasterFile($OldUPN, $MasterFile) {
         If (-not $MasterFile) {
@@ -280,7 +299,8 @@ BEGIN {
         $NewUPN = $MasterFile | Where-Object { $_.OldUPN -eq "$OldUPN" } | Select-Object -ExpandProperty UPN
         return $NewUPN
     }
-    function SetUserAttributes($Data, $NewUPN) {
+    function RenameADUser($NewUPN){
+        WriteLog "Renaming user object..."
         $ADUser = GetADUser -NewUPN $NewUPN
         if ($ADUser -eq $false) {
             $err = "Failed to find AD user with UPN '$NewUPN'."
@@ -289,6 +309,163 @@ BEGIN {
             WriteCSVOutput -Data $Data -File $ErrorFileOutput
             return $false
         }
+        $Name = $ADUser.Name
+        $DisplayName = $ADUser.DisplayName
+        if($Name -ne $DisplayName){
+            Try{
+                if($MakeChanges){
+                    $ADUser | Rename-ADObject -NewName $DisplayName -Server $Server -Credential $Credential
+                }
+                WriteLog "Successfully renamed from '$Name' to '$DisplayName'"
+                return $true
+            }
+            Catch{
+                $err = $_
+                WriteLog "Error renaming user. Error: $err"
+                $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
+                WriteCSVOutput -Data $Data -File $ErrorFileOutput
+                return $false
+            }
+        }
+        else{
+            WriteLog "Rename not needed."
+            return $true
+        }
+    }
+    function SetUserAttributes($Data, $NewUPN) {
+        WriteLog "Setting user attributes..."
+        $ADUser = GetADUser -NewUPN $NewUPN
+        if ($ADUser -eq $false) {
+            $err = "Failed to find AD user with UPN '$NewUPN'."
+            WriteLog $err
+            $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
+            WriteCSVOutput -Data $Data -File $ErrorFileOutput
+            return $false
+        }
+        $Attributes_to_Set = @(
+            @{Name = "DisplayName"; Custom = $true },
+            @{Name = "FirstName"; ADName = "GivenName" },
+            @{Name = "LastName"; ADName = "SurName" },
+            @{Name = "PrimarySmtpAddress"; ADName = "EmailAddress"; Custom = $true },
+            # @{Name = "LegacyExchangeDN"; Custom = $true },
+            @{Name = "EmailAddresses"; Custom = $true },
+            @{Name = "Company"; Custom = $true },
+            @{Name = "Department"; Custom = $true },
+            # @{Name="Manager"},
+            @{Name = "Title" },
+            @{Name = "HomePhone" },
+            @{Name = "MobilePhone" },
+            # @{Name="OtherHomePhone"},
+            @{Name = "OtherTelephone" },
+            @{Name = "Phone"; ADName = "OfficePhone" },
+            @{Name = "Fax" },
+            # @{Name="OtherFax"},
+            @{Name = "City" },
+            @{Name = "Description" },
+            @{Name = "Division" },
+            @{Name = "EmployeeID" },
+            @{Name = "EmployeeNumber" },
+            @{Name = "extensionAttribute1" },
+            @{Name = "extensionAttribute2" },
+            @{Name = "extensionAttribute3" },
+            @{Name = "extensionAttribute4" },
+            # @{Name="extensionAttribute5"},
+            @{Name = "extensionAttribute6" },
+            @{Name = "extensionAttribute7" },
+            @{Name = "extensionAttribute8" },
+            @{Name = "extensionAttribute9" },
+            @{Name = "extensionAttribute10" },
+            @{Name = "extensionAttribute11" },
+            @{Name = "extensionAttribute12" },
+            # @{Name="extensionAttribute13"},
+            @{Name = "extensionAttribute14" },
+            # @{Name="extensionAttribute15"},
+            @{Name = "Office" },
+            @{Name = "Organization" },
+            @{Name = "PostalCode" },
+            @{Name = "State" },
+            @{Name = "StreetAddress" }
+        )
+
+        $Attributes = @{}
+        foreach ($Attribute in $Attributes_to_Set) {
+            $New = AttributeNeedsUpdating -Data $Data -ADUser $ADUser -Attribute $Attribute
+            if ($new -ne $false) {
+                $Attributes += $new
+            }
+        }
+        if ($Attributes.Count -ne 0) {
+            try {
+                WriteLog "Backing up user..."
+                BackupADUser -ADUser $ADUser
+                WriteLog "Done backing up user."
+                WriteLog "Writing attributes $Attributes"
+                if($MakeChanges){
+                    Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
+                }
+                WriteLog "Done writing attributes."
+                return $true
+            }
+            Catch {
+                $err = $_
+                WriteLog "Error writing attributes. Error: $err"
+                $Data | Add-Member -MemberType NoteProperty -Name Error -Value $err
+                WriteCSVOutput -Data $Data -File $ErrorFileOutput
+                return $false
+            }
+        }
+        else {
+            WriteLog "No attributes to update."
+            return $true
+        }
+    }
+    function AttributeNeedsUpdating($Data, $ADUser, $Attribute) {
+        $Name = $Attribute.Name
+        if ($Attribute.ContainsKey("ADName")) {
+            $ADName = $Attribute.ADName
+        }
+        else {
+            $ADName = $Name
+        }
+        if ($Attribute.ContainsKey("Custom")) {
+            if ($Name -eq "DisplayName") {
+                $NewValue = GetDisplayName -OldDisplayName $Data.DisplayName
+            }
+            elseif ($Name -eq "PrimarySmtpAddress") {
+                $NewValue = $ADUser.UserPrincipalName
+            }
+            elseif ($Name -eq "Company") {
+                $NewValue = $COMPANY
+            }
+            elseif ($Name -eq "Department") {
+                $NewValue = $DEPARTMENT
+            }
+            elseif ($Name -eq "EmailAddresses") {
+                $x500s = @("x500:$($Data.LegacyExchangeDN)")
+                $x500s += $Data.EmailAddress -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
+                $x500s += $ADUser.ProxyAddresses | Where-Object { $_ -match "^x500" }
+                $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@cannabis\.ca\.gov$|@dcco365\.mail\.onmicrosoft\.com$|@dcco365\.onmicrosoft\.com$" }
+                if ($OtherAddresses) {
+                    $x500s += @($OtherAddresses)
+                }
+                $NewValue = $x500s | Sort-Object -Unique
+                $CurrentValue = $ADUser.ProxyAddresses
+                if (@(Compare-Object $NewValue $CurrentValue).Length -ne 0) {
+                    return @{ ProxyAddresses = $NewValue }
+                }
+                else {
+                    return $false
+                }
+            }
+        }
+        else {
+            $NewValue = $Data.$Name
+        }
+        if ([string]::IsNullOrWhiteSpace($NewValue)) { return $false }
+        $CurrentValue = $ADUser.$ADName
+        if ($CurrentValue -eq $NewValue) { return $false }
+        return @{$ADName = "$NewValue" }
+
     }
     function CreateADUser($Data) {
         Try {
@@ -308,6 +485,8 @@ BEGIN {
                 Path              = $OU
                 SamAccountName    = $NewSamAccountName
                 AccountPassword   = (ConvertTo-SecureString -AsPlainText $Password -Force)
+                Company           = $COMPANY
+                Department        = $DEPARTMENT
                 OtherAttributes   = @{'msExchHideFromAddressLists' = "$true" }
             }
             if ($MailboxType -eq "UserMailbox") {
@@ -323,7 +502,9 @@ BEGIN {
             if ($LastName) {
                 $Attributes.SurName = $LastName
             }
-            # New-ADUser @Attributes -Server $Server
+            if($MakeChanges){
+                New-ADUser @Attributes -Server $Server -Credential $Credential
+            }
 
             $Result = [PSCustomObject]@{
                 OldUPN      = $OldUPN
@@ -400,7 +581,7 @@ BEGIN {
     }
     function GetADUser($NewUPN) {
         Try {
-            $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$NewUPN'" -Server $Server -Properties *
+            $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$NewUPN'" -Server $Server -Credential $Credential -Properties *
             if (-not $ADUser) {
                 throw "Failed to find AD User with UPN '$NewUPN'"
             }
@@ -412,7 +593,11 @@ BEGIN {
             return $false
         }
     }
-
+    function BackupADUser($ADUser) {
+        $FileName = "$($ADUser.UserPrincipalName).xml"
+        $Path = Join-Path $BackupDir $FileName
+        $ADUser | Export-Clixml -LiteralPath $Path
+    }
 }
 PROCESS {
     # Script start
@@ -464,19 +649,6 @@ PROCESS {
         WriteLog "Done importing user."
     }
     WriteLog "Done importing users."
-    # Check if user in master file
-    # if in master file, get ad user
-    # if get user fails, log error and continue
-    # if not in master file, confirm get ad user not present
-    # if user is found, log error and continue
-    # check if user mailbox or shared mailbox
-    # get or create ad user (whats the minimum properties needed)
-    # decide which OU
-    # Set AD user properties
-    # which properties need to be transformed (UPN, mail, displayname, )
-
-
-
 }
 END {
     WriteLog "Script finished."
