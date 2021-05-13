@@ -59,7 +59,7 @@ BEGIN {
         "UserMailbox"      = @{
             "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
             "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "UOU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "SharedMailbox"    = @{
             "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
