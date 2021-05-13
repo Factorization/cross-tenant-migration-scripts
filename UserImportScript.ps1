@@ -384,7 +384,8 @@ BEGIN {
             @{Name = "Organization"; ADName = "o" },
             @{Name = "PostalCode" },
             @{Name = "State"; ADName = "st" },
-            @{Name = "StreetAddress" }
+            @{Name = "StreetAddress" },
+            @{Name = "msExchHideFromAddressLists"; Custom = $true }
         )
 
         $Attributes = @{}
@@ -439,6 +440,9 @@ BEGIN {
             }
             elseif ($Name -eq "Department") {
                 $NewValue = $DEPARTMENT
+            }
+            elseif ($Name -eq "msExchHideFromAddressLists") {
+                $NewValue = "TRUE"
             }
             elseif ($Name -eq "EmailAddresses") {
                 $x500s = @("x500:$($Data.LegacyExchangeDN)")
