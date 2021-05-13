@@ -487,7 +487,7 @@ BEGIN {
                 AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
                 Company           = "$COMPANY"
                 Department        = "$DEPARTMENT"
-                OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
+                # OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
             }
             if ($MailboxType -eq "UserMailbox") {
                 $Attributes.Enabled = $true
