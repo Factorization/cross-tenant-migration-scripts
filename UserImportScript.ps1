@@ -484,7 +484,7 @@ BEGIN {
                 UserPrincipalName = "$NewUPN"
                 Path              = "$OU"
                 SamAccountName    = "$NewSamAccountName"
-                AccountPassword   = "$(ConvertTo-SecureString -AsPlainText $Password -Force)"
+                AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
                 Company           = "$COMPANY"
                 Department        = "$DEPARTMENT"
                 OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
