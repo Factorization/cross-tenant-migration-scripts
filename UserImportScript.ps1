@@ -314,7 +314,7 @@ BEGIN {
         if ($Name -ne $DisplayName) {
             Try {
                 if ($MakeChanges) {
-                    $ADUser | Rename-ADObject -NewName $DisplayName -Server $Server -Credential $Credential
+                    $ADUser | Rename-ADObject -NewName "$DisplayName" -Server $Server -Credential $Credential
                 }
                 WriteLog "Successfully renamed from '$Name' to '$DisplayName'"
                 return $true
@@ -479,15 +479,15 @@ BEGIN {
             $FirstName = $Data.FirstName
             $LastName = $Data.LastName
             $Attributes = @{
-                Name              = $NewDisplayName
-                DisplayName       = $NewDisplayName
-                UserPrincipalName = $NewUPN
-                Path              = $OU
-                SamAccountName    = $NewSamAccountName
-                AccountPassword   = (ConvertTo-SecureString -AsPlainText $Password -Force)
-                Company           = $COMPANY
-                Department        = $DEPARTMENT
-                OtherAttributes   = @{'msExchHideFromAddressLists' = "$true" }
+                Name              = "$NewDisplayName"
+                DisplayName       = "$NewDisplayName"
+                UserPrincipalName = "$NewUPN"
+                Path              = "$OU"
+                SamAccountName    = "$NewSamAccountName"
+                AccountPassword   = "$(ConvertTo-SecureString -AsPlainText $Password -Force)"
+                Company           = "$COMPANY"
+                Department        = "$DEPARTMENT"
+                OtherAttributes   = @{msExchHideFromAddressLists = "$true" }
             }
             if ($MailboxType -eq "UserMailbox") {
                 $Attributes.Enabled = $true
@@ -497,10 +497,10 @@ BEGIN {
                 $Attributes.Enabled = $false
             }
             if ($FirstName) {
-                $Attributes.GivenName = $FirstName
+                $Attributes.GivenName = "$FirstName"
             }
             if ($LastName) {
-                $Attributes.SurName = $LastName
+                $Attributes.SurName = "$LastName"
             }
             if ($MakeChanges) {
                 WriteLog "Creating user with attributes $($Attributes|Out-String)."
