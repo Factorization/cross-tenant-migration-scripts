@@ -345,7 +345,7 @@ BEGIN {
         $Attributes_to_Set = @(
             @{Name = "DisplayName"; Custom = $true },
             @{Name = "FirstName"; ADName = "GivenName" },
-            @{Name = "LastName"; ADName = "SurName" },
+            @{Name = "LastName"; ADName = "sn" },
             @{Name = "PrimarySmtpAddress"; ADName = "mail"; Custom = $true },
             # @{Name = "LegacyExchangeDN"; Custom = $true },
             @{Name = "EmailAddresses"; Custom = $true },
@@ -354,13 +354,13 @@ BEGIN {
             # @{Name="Manager"},
             @{Name = "Title" },
             @{Name = "HomePhone" },
-            @{Name = "MobilePhone" },
+            @{Name = "Mobile" },
             # @{Name="OtherHomePhone"},
             @{Name = "OtherTelephone" },
             @{Name = "Phone"; ADName = "telephoneNumber" },
-            @{Name = "Fax" },
+            @{Name = "Fax"; ADName = "facsimileTelephoneNumber" },
             # @{Name="OtherFax"},
-            @{Name = "City" },
+            @{Name = "City"; ADName = "l" },
             @{Name = "Description" },
             @{Name = "Division" },
             @{Name = "EmployeeID" },
@@ -381,9 +381,9 @@ BEGIN {
             @{Name = "extensionAttribute14" },
             # @{Name="extensionAttribute15"},
             @{Name = "Office" },
-            @{Name = "Organization" },
+            @{Name = "Organization"; ADName = "o" },
             @{Name = "PostalCode" },
-            @{Name = "State" },
+            @{Name = "State"; ADName = "st" },
             @{Name = "StreetAddress" }
         )
 
