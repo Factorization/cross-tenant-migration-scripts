@@ -1,3 +1,5 @@
+#Requires -Modules ActiveDirectory, GetPassword
+
 [CmdletBinding()]
 param (
     [Parameter(Mandatory = $false)]
