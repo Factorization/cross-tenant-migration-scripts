@@ -476,6 +476,9 @@ BEGIN {
             $MailboxType = $Data.RecipientTypeDetails
             $NewUPN = GetUPN -OldUPN $OldUPN
             $NewSamAccountName = ($NewUPN -split "@")[0]
+            if ($NewSamAccountName.Length -gt 20) {
+                $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
+            }
             $OU = GetOU -OldUPN $OldUPN -MailboxType $MailboxType
             $NewDisplayName = GetDisplayName -OldDisplayName $Data.DisplayName
             $Password = GetPassword
