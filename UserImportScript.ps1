@@ -445,7 +445,7 @@ BEGIN {
             # }
             elseif ($Name -eq "EmailAddresses") {
                 $x500s = @("x500:$($Data.LegacyExchangeDN)")
-                $x500s += $Data.EmailAddress -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
+                $x500s += $Data.EmailAddresses -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
                 $x500s += $ADUser.ProxyAddresses | Where-Object { $_ -match "^x500" }
                 $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@cannabis\.ca\.gov$|@dcco365\.mail\.onmicrosoft\.com$|@dcco365\.onmicrosoft\.com$" }
                 if ($OtherAddresses) {
