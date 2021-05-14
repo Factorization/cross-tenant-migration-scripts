@@ -59,24 +59,24 @@ BEGIN {
     # Map of user objects to specific OUs
     $OU_MAP = @{
         "UserMailbox"      = @{
-            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "DCA"  = "OU=BCC,OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=CDFA,OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=CDPH,OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "SharedMailbox"    = @{
-            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "DCA"  = "OU=BCC,OU=NOSYNC,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=CDFA,OU=NOSYNC,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=CDPH,OU=NOSYNC,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "EquipmentMailbox" = @{
-            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "DCA"  = "OU=BCC,OU=NOSYNC,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=CDFA,OU=NOSYNC,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=CDPH,OU=NOSYNC,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
         "RoomMailbox"      = @{
-            "DCA"  = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=NOSYNC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "DCA"  = "OU=BCC,OU=NOSYNC,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDFA" = "OU=CDFA,OU=NOSYNC,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "CDPH" = "OU=CDPH,OU=NOSYNC,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
         }
     }
 
