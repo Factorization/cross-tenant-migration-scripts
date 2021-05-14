@@ -376,7 +376,7 @@ BEGIN {
             # @{Name="extensionAttribute13"},
             @{Name = "extensionAttribute14" },
             # @{Name="extensionAttribute15"},
-            @{Name = "Office" },
+            @{Name = "Office"; ADName = "physicalDeliveryOfficeName" },
             @{Name = "Organization"; ADName = "o" },
             @{Name = "PostalCode" },
             @{Name = "State"; ADName = "st" },
