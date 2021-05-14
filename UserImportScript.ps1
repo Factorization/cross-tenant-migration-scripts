@@ -477,7 +477,8 @@ BEGIN {
             $NewUPN = GetUPN -OldUPN $OldUPN
             $NewSamAccountName = ($NewUPN -split "@")[0]
             if ($NewSamAccountName.Length -gt 20) {
-                $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
+                $random_suffix = ((New-Guid).Guid -split "-")[1]
+                $NewSamAccountName = $NewSamAccountName.Substring(0, 15) + "-" + $random_suffix
             }
             $OU = GetOU -OldUPN $OldUPN -MailboxType $MailboxType
             $NewDisplayName = GetDisplayName -OldDisplayName $Data.DisplayName
