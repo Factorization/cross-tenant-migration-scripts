@@ -353,7 +353,7 @@ BEGIN {
             @{Name = "EmailAddresses"; Custom = $true },
             @{Name = "Company"; Custom = $true },
             @{Name = "Department"; Custom = $true },
-            # @{Name="Manager"},
+            # @{Name="Manager"; Custom = $true},
             @{Name = "Title" },
             @{Name = "HomePhone" },
             @{Name = "MobilePhone"; ADName = "mobile" },
@@ -447,6 +447,10 @@ BEGIN {
             elseif ($Name -eq "msExchHideFromAddressLists") {
                 $NewValue = "TRUE"
             }
+            # elseif ($Name -eq "Manager") {
+            #     if ($ADUser.Manager) { return $false }
+            #     if (-not $Data.Manager) { return $false }
+            # }
             elseif ($Name -eq "EmailAddresses") {
                 $x500s = @("x500:$($Data.LegacyExchangeDN)")
                 $x500s += $Data.EmailAddress -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
