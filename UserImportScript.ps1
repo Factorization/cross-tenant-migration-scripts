@@ -32,11 +32,7 @@ param (
 
     [Parameter(Mandatory = $true)]
     [pscredential]
-    $Credential = (Get-Credential),
-
-    [Parameter(Mandatory = $false)]
-    [switch]
-    $MakeChanges
+    $Credential = (Get-Credential)
 )
 BEGIN {
     #########################
@@ -315,9 +311,7 @@ BEGIN {
         $DisplayName = $ADUser.DisplayName
         if ($Name -ne $DisplayName) {
             Try {
-                if ($MakeChanges) {
-                    $ADUser | Rename-ADObject -NewName "$DisplayName" -Server $Server -Credential $Credential
-                }
+                $ADUser | Rename-ADObject -NewName "$DisplayName" -Server $Server -Credential $Credential
                 WriteLog "Successfully renamed from '$Name' to '$DisplayName'"
                 return $true
             }
@@ -403,9 +397,7 @@ BEGIN {
                 BackupADUser -ADUser $ADUser
                 WriteLog "Done backing up user."
                 WriteLog "Writing attributes $($Attributes|Out-string)."
-                if ($MakeChanges) {
-                    $ADUser | Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
-                }
+                $ADUser | Set-ADUser -Replace $Attributes -Server $Server -Credential $Credential
                 WriteLog "Done writing attributes."
                 return $true
             }
@@ -512,10 +504,9 @@ BEGIN {
             if ($LastName) {
                 $Attributes.SurName = "$LastName"
             }
-            if ($MakeChanges) {
-                WriteLog "Creating user with attributes $($Attributes|Out-String)."
-                New-ADUser @Attributes -Server $Server -Credential $Credential
-            }
+
+            WriteLog "Creating user with attributes $($Attributes|Out-String)."
+            New-ADUser @Attributes -Server $Server -Credential $Credential
 
             $Result = [PSCustomObject]@{
                 OldUPN      = $OldUPN
