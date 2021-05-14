@@ -454,7 +454,7 @@ BEGIN {
                 $NewValue = $x500s | Sort-Object -Unique
                 $CurrentValue = $ADUser.ProxyAddresses
                 if (@(Compare-Object $NewValue $CurrentValue).Length -ne 0) {
-                    return @{ ProxyAddresses = $NewValue }
+                    return @{ ProxyAddresses = ($NewValue -join ";" -split ";") }
                 }
                 else {
                     return $false
