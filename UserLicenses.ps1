@@ -1,5 +1,10 @@
-
-$DIRs = Get-ChildItem -Recurse -Filter "MSOL_User_Output_XMls"
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory=$true)]
+    [string[]]
+    $ExportPaths
+)
+$DIRs = $ExportPaths | ForEach-Object{ Get-Item -LiteralPath $_}
 
 $Users = @()
 foreach ($Path in $DIRs){
