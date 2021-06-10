@@ -82,7 +82,12 @@ Param(
 	# Include mailbox permissions
 	[Parameter(Mandatory = $false)]
 	[switch]
-	$IncludeMailboxPermissions
+	$IncludeMailboxPermissions,
+
+	# Skip AD User info
+	[Parameter(Mandatory = $False)]
+	[switch]
+	$SkipAdInfo
 )
 BEGIN {
 	$Global:ErrorActionPreference = 'Stop'
@@ -164,15 +169,17 @@ BEGIN {
 		Write-Verbose "Exporting Msol user info to XML..."
 		ExportXML -Object $MSOLUser -Path $GetMsolUserOutput -Email $SourceEmailAddress
 
-		if ($mailbox.IsDirSynced) {
-			Write-Verbose "Getting AD user info..."
-			$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties *
-			Write-Verbose "Exporting AD user info to XML..."
-			ExportXML -Object $ADUser -Path $GetADUserOutput -Email $SourceEmailAddress
-		}
-		else {
-			Write-Verbose "User is not synced from AD. Skipping AD user export..."
-			$ADUser = $null
+		if ( -not $SkipAdInfo) {
+			if ($mailbox.IsDirSynced) {
+				Write-Verbose "Getting AD user info..."
+				$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties *
+				Write-Verbose "Exporting AD user info to XML..."
+				ExportXML -Object $ADUser -Path $GetADUserOutput -Email $SourceEmailAddress
+			}
+			else {
+				Write-Verbose "User is not synced from AD. Skipping AD user export..."
+				$ADUser = $null
+			}
 		}
 
 		if ($IncludeMailboxPermissions) {
