@@ -17,32 +17,11 @@ PROCESS {
     $Master_files = Get-ChildItem -Path $Path -File -Filter "Master_*.csv" | Where-Object { $_.name -notlike "*original*" }
 
     $Mailbox_Types = @(
-        'Equipment',
-        'Room',
+        'User',
         'Shared',
-        'User'
+        'Room',
+        'Equipment'
     )
-
-    $Results = @{
-        CDFA = @{
-            Equipment = @()
-            Room      = @()
-            Shared    = @()
-            User      = @()
-        }
-        CDPH = @{
-            Equipment = @()
-            Room      = @()
-            Shared    = @()
-            User      = @()
-        }
-        DCA  = @{
-            Equipment = @()
-            Room      = @()
-            Shared    = @()
-            User      = @()
-        }
-    }
 
     foreach ($T in $Mailbox_Types) {
         $File = $Master_files | Where-Object { $_.Name -like "*$T*" }
@@ -54,11 +33,10 @@ PROCESS {
             $Tenant_Domains = $DOMAINS[$A]
 
             $Result = $CSV | Where-Object {$_.OldUPN -like "*$($Tenant_Domains[0])" -or $_.OldUPN -like "*$($Tenant_Domains[1])"}
-            $Result = $Result | Select-Object @{n="Source Mailbox";e={$_.OldUPN}}, @{n="Target Mailbox";e={$_.UPN}}
+            $Result = $Result | Select-Object @{n="Source Mailbox";e={$_.OldUPN}}, @{n="Target Mailbox";e={$_.UPN}} | Sort-Object -Property "Source Mailbox"
             $Result | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
-            # $Results[$A][$T] = $Result
         }
     }
-    # return $Results
+
 }
 END {}
