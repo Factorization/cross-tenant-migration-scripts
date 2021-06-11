@@ -448,7 +448,7 @@ PROCESS {
 		# unknown object
 		else {
 			$ErrObject = [PSCustomObject]@{
-				"Email"                = $SourceEmailAddress
+				"Name"                 = $Member.Name
 				"RecipientType"        = $Member.RecipientType
 				"RecipientTypeDetails" = $Member.RecipientTypeDetails
 				"Error"                = "Not parsed by script"
