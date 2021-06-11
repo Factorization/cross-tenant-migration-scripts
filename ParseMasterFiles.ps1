@@ -50,6 +50,7 @@ PROCESS {
             $Tenant_Domains = $DOMAINS[$A]
 
             $Result = $CSV | Where-Object {$_.OldUPN -like "*$($Tenant_Domains[0])" -or $_.OldUPN -like "*$($Tenant_Domains[1])"}
+            $Result = $Result | Select-Object @{n="Source User";e={$_.OldUPN}}, @{n="Target User";e={$_.UPN}}
             $Results[$A][$T] = $Result
         }
     }
