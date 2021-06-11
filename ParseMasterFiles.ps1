@@ -23,9 +23,13 @@ PROCESS {
         'Equipment'
     )
 
+    $Total = $Master_files | ForEach-Object {Import-Csv $_.FullName} | Measure-Object | Select-Object -ExpandProperty Count
+    $Count = 0
+
     foreach ($T in $Mailbox_Types) {
         $File = $Master_files | Where-Object { $_.Name -like "*$T*" }
         $CSV = Import-Csv $File.FullName
+        $Count = $Count + ($CSV | Measure-Object | Select-Object -ExpandProperty Count)
 
         foreach ($A in @("CDFA", "CDPH", "DCA")){
             $OutputFile = "$($A)_Master_Mailbox_List_$DATE.xlsx"
@@ -38,5 +42,11 @@ PROCESS {
         }
     }
 
+    if($Total -ne $Count){
+        Write-Host "Numbers don't match. Total $Total. Processed $Count" -ForegroundColor Red
+    }
+    else{
+        Write-Host "All mailboxes processed. Total $Total" -ForegroundColor Green
+    }
 }
 END {}
