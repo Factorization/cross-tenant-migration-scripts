@@ -12,7 +12,9 @@ param (
     [string]
     $ShareTeamsUrlListFile
 )
-BEGIN{}
+BEGIN{
+    $DATE = Get-Date -Format yyyy_MM_dd
+}
 PROCESS{
     $SharePoint = $SharePointSitesExports | ForEach-Object {
         if ($_.EndsWith("csv")) {
@@ -41,6 +43,7 @@ PROCESS{
     }
     $SharePointAndTeams = $SharePointAndTeams | Sort-Object -Unique -Property URL
 
+    $Results = @()
     foreach ($Site in $SharePointAndTeams){
         $Title = $Site.Title
         $Template = $Site.Template
@@ -64,12 +67,22 @@ PROCESS{
         else{
             $SiteType = "SharePoint"
         }
-        [PSCustomObject]@{
+        $Results = [PSCustomObject]@{
             Title = $Title
             URL = $Site.URL
             SiteType = $SiteType
             Agency = $Site.Agency
             Notes = $Notes
+        }
+    }
+    $Group_Results = $Results | Group-Object -Property Agency
+    foreach ($Group in $Group_Results){
+        $Agency = $Group.Name
+        $OutputFile = "$($Agency)_Master_SharePoint_And_Teams_$DATE.xlsx"
+        foreach ($SiteType in @("SharePoint", "Teams")){
+            $SheetName = $SiteType
+            $Result = $Group.Group | Where-Object {$_.SiteType -like "$SiteType*"}
+            $Result | Select-Object Title, Url, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
         }
     }
 }
