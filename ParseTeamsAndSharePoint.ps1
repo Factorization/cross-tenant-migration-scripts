@@ -37,6 +37,7 @@ PROCESS{
     $Teams = $Teams | Group-Object -Property "DisplayName" -AsHashTable
 
     $Sites = Get-Content -LiteralPath $ShareTeamsUrlListFile
+    $Total = $Sites | Measure-Object | Select-Object -ExpandProperty Count
     $SharePointAndTeams = @()
     foreach ($Site in $Sites){
         $SharePointAndTeams += $SharePoint[$site]
@@ -76,6 +77,8 @@ PROCESS{
         }
     }
     $Group_Results = $Results | Group-Object -Property Agency
+    $Count = $Group_Results | Measure-Object -Sum -Property Count | Select-Object -ExpandProperty Sum
+
     foreach ($Group in $Group_Results){
         $Agency = $Group.Name
         $OutputFile = "$($Agency)_Master_SharePoint_And_Teams_$DATE.xlsx"
@@ -84,5 +87,11 @@ PROCESS{
             $Result = $Group.Group | Where-Object {$_.SiteType -like "$($SiteType)*"}
             $Result | Select-Object Title, Url, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
         }
+    }
+    if($Total -ne $Count){
+        Write-Host "Numbers don't match. Total $Total. Processed $Count" -ForegroundColor Red
+    }
+    else{
+        Write-Host "All mailboxes processed. Total $Total" -ForegroundColor Green
     }
 }
