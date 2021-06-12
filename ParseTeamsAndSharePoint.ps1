@@ -73,6 +73,7 @@ PROCESS{
             URL = $Site.URL
             SiteType = $SiteType
             Agency = $Site.Agency
+            "Size GB" = $([math]::Ceiling($Site.StorageUsageCurrent * 1MB / 1GB))
             Notes = $Notes
         }
     }
@@ -85,7 +86,7 @@ PROCESS{
         foreach ($SiteType in @("SharePoint", "Teams")){
             $SheetName = $SiteType
             $Result = $Group.Group | Where-Object {$_.SiteType -like "$($SiteType)*"}
-            $Result | Select-Object Title, Url, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
+            $Result | Select-Object Title, Url, SiteType, Size, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
         }
     }
     if($Total -ne $Count){
