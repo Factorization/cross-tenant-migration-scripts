@@ -39,6 +39,7 @@ PROCESS{
     foreach ($Site in $Sites){
         $SharePointAndTeams += $SharePoint[$site]
     }
+    $SharePointAndTeams = $SharePointAndTeams | Sort-Object -Unique -Property URL
 
     foreach ($Site in $SharePointAndTeams){
         $Title = $Site.Title
