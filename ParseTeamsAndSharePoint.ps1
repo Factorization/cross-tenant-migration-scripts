@@ -81,7 +81,7 @@ PROCESS{
         $OutputFile = "$($Agency)_Master_SharePoint_And_Teams_$DATE.xlsx"
         foreach ($SiteType in @("SharePoint", "Teams")){
             $SheetName = $SiteType
-            $Result = $Group.Group | Where-Object {$_.SiteType -like "$SiteType*"}
+            $Result = $Group.Group | Where-Object {$_.SiteType -like "$($SiteType)*"}
             $Result | Select-Object Title, Url, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
         }
     }
