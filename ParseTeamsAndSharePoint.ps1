@@ -48,6 +48,7 @@ PROCESS{
     foreach ($Site in $SharePointAndTeams){
         $Title = $Site.Title
         $Template = $Site.Template
+        $Size = [int]$Site.StorageUsageCurrent * 1MB / 1GB
         if ($Title -eq "MCSB Licensing"){
             $Title = "MCSB Licensing Section"
             $Notes = "Team site was renamed from 'MCSB Licensing' to 'MCSB Licensing Section'"
@@ -73,7 +74,7 @@ PROCESS{
             URL = $Site.URL
             SiteType = $SiteType
             Agency = $Site.Agency
-            "Size GB" = $([math]::Ceiling($Site.StorageUsageCurrent * 1MB / 1GB))
+            "Size GB" = $([math]::Ceiling($Size))
             Notes = $Notes
         }
     }
@@ -86,7 +87,7 @@ PROCESS{
         foreach ($SiteType in @("SharePoint", "Teams")){
             $SheetName = $SiteType
             $Result = $Group.Group | Where-Object {$_.SiteType -like "$($SiteType)*"}
-            $Result | Select-Object Title, Url, SiteType, Size, Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
+            $Result | Select-Object Title, Url, SiteType, "Size GB", Notes | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
         }
     }
     if($Total -ne $Count){
