@@ -67,7 +67,7 @@ PROCESS{
         else{
             $SiteType = "SharePoint"
         }
-        $Results = [PSCustomObject]@{
+        $Results += [PSCustomObject]@{
             Title = $Title
             URL = $Site.URL
             SiteType = $SiteType
@@ -76,7 +76,6 @@ PROCESS{
         }
     }
     $Group_Results = $Results | Group-Object -Property Agency
-    $Group_Results
     foreach ($Group in $Group_Results){
         $Agency = $Group.Name
         $OutputFile = "$($Agency)_Master_SharePoint_And_Teams_$DATE.xlsx"
