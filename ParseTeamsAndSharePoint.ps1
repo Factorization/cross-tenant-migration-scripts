@@ -60,6 +60,9 @@ PROCESS{
         elseif($Template -eq "TEAMCHANNEL#0") {
             $SiteType = "Teams Private Channel"
         }
+        else{
+            $SiteType = "SharePoint"
+        }
         [PSCustomObject]@{
             Title = $Title
             URL = $Site.URL
