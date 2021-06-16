@@ -10,6 +10,25 @@ param (
 )
 BEGIN {
     $Exports = $InputFiles | ForEach-Object { Import-Csv $_ }
+    $Exports_Name_Hash = $Exports | Group-Object -Property Name -AsHashTable
+
+    function CheckManager([string]$manager){
+        $manager_upn = $Exports_Name_Hash[$manager].UserPrincipalName
+        if(-not $manager_upn){
+            return $false
+        }
+        $manager_upn = ($manager_upn -split '@')[0] + "@cannabis.ca.gov"
+        $Manager_ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$manager_upn'" -Server $Server
+        if (-not $Manager_ADUser) {
+            Write-Host "Manager $manager_upn not found." -ForegroundColor Red
+            Continue
+        }
+        if ( ($Manager_ADUser | Measure-Object | Select-Object -ExpandProperty Count) -ne 1 ) {
+            Write-Host "Manager $manager_upn found multiple." -ForegroundColor Red
+            Continue
+        }
+        return $Manager_ADUser.DistinguishedName
+    }
 }
 PROCESS {
     foreach ($User in $Exports) {
