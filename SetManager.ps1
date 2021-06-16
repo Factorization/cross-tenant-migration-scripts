@@ -4,7 +4,7 @@ param (
     [string[]]
     $InputFiles,
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string]
     $Server = "dcc-h-dc01.ad.cannabis.ca.gov"
 )
@@ -20,5 +20,17 @@ PROCESS {
             Write-Host "User $UPN has no manager defined." -ForegroundColor Yellow
             Continue
         }
+
+        $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$UPN'" -Server $Server
+        if (-not $ADUser) {
+            Write-Host "User $UPN not found." -ForegroundColor Red
+            Continue
+        }
+        if ( ($ADUser | Measure-Object | Select-Object -ExpandProperty Count) -ne 1 ) {
+            Write-Host "User $UPN found multiple." -ForegroundColor Red
+            Continue
+        }
+
+        Write-Host $Manager
     }
 }
