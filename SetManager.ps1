@@ -21,11 +21,11 @@ BEGIN {
         $Manager_ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$manager_upn'" -Server $Server
         if (-not $Manager_ADUser) {
             Write-Host "Manager $manager_upn not found." -ForegroundColor Red
-            Continue
+            return $false
         }
         if ( ($Manager_ADUser | Measure-Object | Select-Object -ExpandProperty Count) -ne 1 ) {
             Write-Host "Manager $manager_upn found multiple." -ForegroundColor Red
-            Continue
+            return $false
         }
         return $Manager_ADUser.DistinguishedName
     }
@@ -50,6 +50,10 @@ PROCESS {
             Continue
         }
 
-        Write-Host $Manager
+        $manager_dn = CheckManager -manager $Manager
+        if (-not $manager_dn){
+            continue
+        }
+        Write-Host $manager_dn -ForegroundColor Green
     }
 }
