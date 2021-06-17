@@ -10,7 +10,7 @@ param (
 
     [Parameter(Mandatory = $false)]
     [pscredential]
-    $Credential = (Get-Credential)
+    $Credential = (Get-Credential -Message "DA")
 )
 
 BEGIN {
