@@ -57,6 +57,9 @@ PROCESS {
             New-ADUser @Attributes -Server $Server -Credential $Credential
             Write-Host "Created AD User $Email." -ForegroundColor Green
         }
+        else{
+            Write-Host "AD User for $Email already exists." -ForegroundColor Cyan
+        }
 
         $User = Get-User $Email
         if (-not $User) {
@@ -68,6 +71,9 @@ PROCESS {
             $User | Enable-RemoteMailbox -RemoteRoutingAddress $RemoteAddress -Shared | Out-Null
             $User | Set-RemoteMailbox -HiddenFromAddressListsEnabled $true | Out-Null
             Write-Host "Created remote mailbox for $Email" -ForegroundColor Green
+        }
+        else{
+            Write-Host "Remote mailbox for $Email already exists." -ForegroundColor Cyan
         }
     }
 }
