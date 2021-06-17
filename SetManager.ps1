@@ -6,7 +6,11 @@ param (
 
     [Parameter(Mandatory = $false)]
     [string]
-    $Server = "dcc-h-dc01.ad.cannabis.ca.gov"
+    $Server = "dcc-h-dc01.ad.cannabis.ca.gov",
+
+    [Parameter(Mandatory = $false)]
+    [pscredential]
+    $Credential
 )
 BEGIN {
     $Exports = $InputFiles | ForEach-Object { Import-Csv $_ }
@@ -41,7 +45,7 @@ PROCESS {
             Continue
         }
 
-        $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$UPN'" -Server $Server
+        $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$UPN'" -Server $Server -Properties Manager
         if (-not $ADUser) {
             Write-Host "User $UPN not found." -ForegroundColor Red
             Continue
@@ -50,11 +54,15 @@ PROCESS {
             Write-Host "User $UPN found multiple." -ForegroundColor Red
             Continue
         }
+        if ($ADUser.Manager){
+            Write-Host "User $UPN already has manager set."
+            continue
+        }
 
         $manager_dn = CheckManager -manager $Manager
         if (-not $manager_dn){
             continue
         }
-        Write-Host $manager_dn -ForegroundColor Green
+        # $ADUser | Set-ADUser -Server $Server -Credential $Credential -Manager $manager_dn
     }
 }
