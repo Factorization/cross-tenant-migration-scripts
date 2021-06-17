@@ -23,7 +23,7 @@ BEGIN {
         return $Password
     }
 
-    $CSV = Import-Csv NewSharedMailboxes.csv | Select-Object -First 1
+    $CSV = Import-Csv NewSharedMailboxes.csv | Select-Object -First 2
 
     Connect-DCCExchange
 }
