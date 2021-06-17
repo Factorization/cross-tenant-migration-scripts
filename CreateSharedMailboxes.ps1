@@ -65,8 +65,9 @@ PROCESS {
         }
         if ($user.RecipientTypeDetails -eq "DisabledUser") {
             $RemoteAddress = ($Email -split '@')[0] + "@dcco365.mail.onmicrosoft.com"
-            $User | Enable-RemoteMailbox -RemoteRoutingAddress $RemoteAddress -Shared
-            $User | Set-RemoteMailbox -HiddenFromAddressListsEnabled $true
+            $User | Enable-RemoteMailbox -RemoteRoutingAddress $RemoteAddress -Shared | Out-Null
+            $User | Set-RemoteMailbox -HiddenFromAddressListsEnabled $true | Out-Null
+            Write-Host "Created remote mailbox for $Email" -ForegroundColor Green
         }
     }
 }
