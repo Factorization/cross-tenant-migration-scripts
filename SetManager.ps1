@@ -15,6 +15,7 @@ BEGIN {
     function CheckManager([string]$manager){
         $manager_upn = $Exports_Name_Hash[$manager].UserPrincipalName
         if(-not $manager_upn){
+            Write-Host "Manager $manager not found."
             return $false
         }
         $manager_upn = ($manager_upn -split '@')[0] + "@cannabis.ca.gov"
