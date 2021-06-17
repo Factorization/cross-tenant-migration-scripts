@@ -55,7 +55,7 @@ PROCESS {
             Continue
         }
         if ($ADUser.Manager){
-            Write-Host "User $UPN already has manager set."
+            Write-Host "User $UPN already has manager set." -ForegroundColor Cyan
             continue
         }
 
@@ -63,6 +63,6 @@ PROCESS {
         if (-not $manager_dn){
             continue
         }
-        # $ADUser | Set-ADUser -Server $Server -Credential $Credential -Manager $manager_dn
+        $ADUser | Set-ADUser -Server $Server -Credential $Credential -Manager $manager_dn
     }
 }
