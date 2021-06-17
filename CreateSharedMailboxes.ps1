@@ -35,7 +35,7 @@ PROCESS {
         $Description = $mailbox.Description
         $ADUser = Get-ADUser -Filter "Mail -eq '$Email'" -Server $Server
 
-        if ( ($ADUser | Measure-Object | Select-Object -ExpandProperty Count) -ge 1 ) {
+        if ( ($ADUser | Measure-Object | Select-Object -ExpandProperty Count) -gt 1 ) {
             Write-Host "Mailbox $Email found multiple." -ForegroundColor Red
             Continue
         }
