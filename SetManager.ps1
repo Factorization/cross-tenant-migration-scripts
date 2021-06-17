@@ -64,5 +64,6 @@ PROCESS {
             continue
         }
         $ADUser | Set-ADUser -Server $Server -Credential $Credential -Manager $manager_dn
+        Write-Host "Set manager for user $UPN." -ForegroundColor Green
     }
 }
