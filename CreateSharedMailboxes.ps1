@@ -23,7 +23,7 @@ BEGIN {
         return $Password
     }
 
-    $CSV = Import-Csv NewSharedMailboxes.csv | Select-Object -First 2
+    $CSV = Import-Csv NewSharedMailboxes.csv
 
     Connect-DCCExchange
 }
@@ -57,7 +57,7 @@ PROCESS {
             New-ADUser @Attributes -Server $Server -Credential $Credential
             Write-Host "Created AD User $Email." -ForegroundColor Green
         }
-        else{
+        else {
             Write-Host "AD User for $Email already exists." -ForegroundColor Cyan
         }
 
@@ -72,7 +72,7 @@ PROCESS {
             $User | Set-RemoteMailbox -HiddenFromAddressListsEnabled $true | Out-Null
             Write-Host "Created remote mailbox for $Email" -ForegroundColor Green
         }
-        else{
+        else {
             Write-Host "Remote mailbox for $Email already exists." -ForegroundColor Cyan
         }
     }
