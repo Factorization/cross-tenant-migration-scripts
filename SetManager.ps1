@@ -10,7 +10,7 @@ param (
 
     [Parameter(Mandatory = $false)]
     [pscredential]
-    $Credential
+    $Credential = (Get-Credential)
 )
 BEGIN {
     $Exports = $InputFiles | ForEach-Object { Import-Csv $_ }
