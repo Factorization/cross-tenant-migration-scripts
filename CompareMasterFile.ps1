@@ -35,5 +35,5 @@ PROCESS{
         $Old += $temp_old
         $New += $temp_new
     }
-    return $New
+    Compare-Object -ReferenceObject $Old -DifferenceObject $New
 }
