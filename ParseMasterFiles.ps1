@@ -39,7 +39,7 @@ PROCESS {
             $Result = $CSV | Where-Object {$_.OldUPN -like "*$($Tenant_Domains[0])" -or $_.OldUPN -like "*$($Tenant_Domains[1])"}
             $Result = $Result | Select-Object @{n="Source Mailbox";e={$_.OldUPN}}, @{n="Target Mailbox";e={$_.UPN}} | Sort-Object -Property "Source Mailbox"
             $Result | Export-Excel -Path $OutputFile -WorksheetName $SheetName -AutoSize -FreezeTopRow -AutoFilter
-            $Output_Results += @("$A | $T - $($Result | Measure-Object| Select-Object -ExpandProperty Count)")
+            $Output_Results += @("$A | $($T): $($Result | Measure-Object| Select-Object -ExpandProperty Count)")
         }
     }
     $CDFA_Total = 0
@@ -47,8 +47,8 @@ PROCESS {
     $DCA_Total = 0
     $Output_Results = $Output_Results | Sort-Object
     foreach ($R in $Output_Results){
-        $A = ($R -split '|')[0]
-        $t = ($R -split ' - ')[1] -as [int]
+        $A = ($R -split ' ')[0]
+        $t = ($R -split ' ')[1] -as [int]
         if($A -eq 'CDFA'){$CDFA_Total += $t}
         elseif ($A -eq 'CDPH') {$CDPH_Total += $t}
         elseif($A -eq 'DCA'){$DCA_Total += $t}
