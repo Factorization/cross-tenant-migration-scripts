@@ -48,7 +48,7 @@ PROCESS {
     $Output_Results = $Output_Results | Sort-Object
     foreach ($R in $Output_Results){
         $A = ($R -split ' ')[0]
-        [int]$t = ($R -split ' ')[1]
+        [int]$t = ($R -split ' ')[-1]
         if($A -eq 'CDFA'){$CDFA_Total += $t}
         elseif ($A -eq 'CDPH') {$CDPH_Total += $t}
         elseif($A -eq 'DCA'){$DCA_Total += $t}
