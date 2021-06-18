@@ -21,13 +21,13 @@ PROCESS{
     $New = @()
     foreach ($T in $Mailbox_Types){
         Try{
-            $temp_old = (Import-Excel $OldFile -WorksheetName $T -erroraction Stop).'Source Mailbox'
+            $temp_old = (Import-Excel $OldFile -WorksheetName $T -erroraction Stop -warningAction silentlycontinue).'Source Mailbox'
         }
         catch{
             $temp_old = @()
         }
         Try{
-            $temp_new = (Import-Excel $NewFile -WorksheetName $T -erroraction Stop).'Source Mailbox'
+            $temp_new = (Import-Excel $NewFile -WorksheetName $T -erroraction Stop -warningAction silentlycontinue).'Source Mailbox'
         }
         catch{
             $temp_new = @()
