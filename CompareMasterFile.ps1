@@ -32,8 +32,8 @@ PROCESS{
         catch{
             $temp_new = @()
         }
-        $old += $temp_old
+        $Old += $temp_old
         $New += $temp_new
     }
-    return $temp_new
+    return $New
 }
