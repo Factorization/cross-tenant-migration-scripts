@@ -61,6 +61,7 @@ PROCESS {
 
         $manager_dn = CheckManager -manager $Manager
         if (-not $manager_dn){
+            Write-Host "`tUser $UPN has no manager $($ADUser.Manager)"
             continue
         }
         $ADUser | Set-ADUser -Server $Server -Credential $Credential -Manager $manager_dn
