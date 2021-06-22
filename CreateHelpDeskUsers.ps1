@@ -4,6 +4,10 @@ param (
     [string]
     $InputFile,
 
+    [Parameter(Mandatory = $true)]
+    [string]
+    $OutputFile = "NewUsers.csv",
+
     [Parameter(Mandatory = $false)]
     [string]
     $Server = "dcc-h-dc01.ad.cannabis.ca.gov",
@@ -51,6 +55,11 @@ PROCESS {
             Surname = $User.SurName
         }
         New-ADUser @Attributes -Server $Server -Credential $Credential
+
+
+        $User | Add-Member -MemberType NoteProperty -Name Password -Value $Password
+        $User | Export-Csv -NoTypeInformation -Append -LiteralPath $OutputFile
+
         Write-Host "Created AD User $SamAccountName." -ForegroundColor Green
     }
 }
