@@ -4,7 +4,7 @@ param (
     [string]
     $InputFile,
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string]
     $OutputFile = "NewUsers.csv",
 
