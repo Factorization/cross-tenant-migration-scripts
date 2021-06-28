@@ -69,19 +69,19 @@ BEGIN {
 PROCESS {
 
     Write-Verbose "Working on user mailboxes..."
-    if($User_Mailboxes){
+    if ($User_Mailboxes) {
         SetForwardingAddresses -Mailboxes $User_Mailboxes
     }
-    else{
-        Write-Host "No user mailboxes in Excel file."
+    else {
+        Write-Host "No user mailboxes in Excel file." -ForegroundColor Cyan
     }
 
     Write-Verbose "Working on shared mailboxes..."
-    if($Shared_Mailboxes){
+    if ($Shared_Mailboxes) {
         SetForwardingAddresses -Mailboxes $Shared_Mailboxes
     }
-    else{
-        Write-Host "No shared mailboxes in Excel file."
+    else {
+        Write-Host "No shared mailboxes in Excel file." -ForegroundColor Cyan
     }
 
 }
