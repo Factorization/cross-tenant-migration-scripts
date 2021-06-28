@@ -49,7 +49,6 @@ BEGIN {
 
             Try {
                 Set-Mailbox $Source_Email -DeliverToMailboxAndForward $true -ForwardingSMTPAddress $Target_Email
-                Start-Sleep -Seconds 1
                 Write-Verbose "Set forwarding address for $Source_Email to $Target_Email"
             }
             Catch {
