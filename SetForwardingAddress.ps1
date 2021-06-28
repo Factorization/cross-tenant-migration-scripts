@@ -5,6 +5,7 @@ param (
     $InputFile
 )
 BEGIN {
+    $global:ErrorActionPreference = "Stop"
     If (-not (Test-Path $InputFile)) {
         Write-Host "File $InputFile does not exist. Exiting." -ForegroundColor Red
         exit
