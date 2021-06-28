@@ -14,8 +14,8 @@ BEGIN {
         exit
     }
 
-    $User_Mailboxes = Import-Excel $InputFile -WorksheetName "User Mailboxes"
-    $Shared_Mailboxes = Import-Excel $InputFile -WorksheetName "Shared Mailboxes"
+    $User_Mailboxes = Import-Excel $InputFile -WorksheetName "User Mailboxes" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    $Shared_Mailboxes = Import-Excel $InputFile -WorksheetName "Shared Mailboxes" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
     $DATE = Get-Date -Format yyyy-MM-dd_HH.mm
     $ErrorFile = "Email_Forwarding_Address_Errors_$DATE.csv"
 
@@ -69,10 +69,20 @@ BEGIN {
 PROCESS {
 
     Write-Verbose "Working on user mailboxes..."
-    SetForwardingAddresses -Mailboxes $User_Mailboxes
+    if($User_Mailboxes){
+        SetForwardingAddresses -Mailboxes $User_Mailboxes
+    }
+    else{
+        Write-Host "No user mailboxes in Excel file."
+    }
 
     Write-Verbose "Working on shared mailboxes..."
-    SetForwardingAddresses -Mailboxes $Shared_Mailboxes
+    if($Shared_Mailboxes){
+        SetForwardingAddresses -Mailboxes $Shared_Mailboxes
+    }
+    else{
+        Write-Host "No shared mailboxes in Excel file."
+    }
 
 }
 END {}
