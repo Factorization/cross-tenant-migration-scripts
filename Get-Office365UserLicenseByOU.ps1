@@ -156,15 +156,15 @@ BEGIN {
 
     # Connect to Exchange Online.
     Write-Verbose -Message "Connecting to Exchange Online."
-    Try {
+    #Try {
         # $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $Credential -Authentication Basic -AllowRedirection -ErrorAction Stop
         # Import-PSSession -Session $Session -DisableNameChecking -AllowClobber -Name Get-Mailbox, Get-MailboxStatistics -Prefix O365 -FormatTypeName * | Out-Null
         Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False  -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | Out-Null
-    }
-    Catch {
-        Write-Error "Can't connect to Exchange Online service with user '$($Credential.UserName)'. Please check password and/or permissions and try again."
-        Break
-    }
+    #}
+    #Catch {
+    #    Write-Error "Can't connect to Exchange Online service with user '$($Credential.UserName)'. Please check password and/or permissions and try again."
+    #    Break
+    #}
 }
 
 PROCESS {
