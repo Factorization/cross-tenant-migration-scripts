@@ -159,7 +159,7 @@ BEGIN {
     Try {
         # $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $Credential -Authentication Basic -AllowRedirection -ErrorAction Stop
         # Import-PSSession -Session $Session -DisableNameChecking -AllowClobber -Name Get-Mailbox, Get-MailboxStatistics -Prefix O365 -FormatTypeName * | Out-Null
-        Connect-ExchangeOnline -Credential $Credential -Prefix O365 -ShowBanner:$False  -ErrorAction Stop | Out-Null
+        Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False  -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | Out-Null
     }
     Catch {
         Write-Error "Can't connect to Exchange Online service with user '$($Credential.UserName)'. Please check password and/or permissions and try again."
@@ -180,9 +180,9 @@ PROCESS {
 
     # Get shared mailboxes
     Write-Verbose -Message "Getting shared mailboxes."
-    $SharedMailboxes = (Get-O365Mailbox -ResultSize Unlimited -RecipientTypeDetails SharedMailbox).UserPrincipalName
+    $SharedMailboxes = (Get-EXOMailbox -ResultSize Unlimited -RecipientTypeDetails SharedMailbox).UserPrincipalName
     Write-Verbose -Message "Getting mailbox statistics."
-    $UserMailboxStats = Get-O365Mailbox -ResultSize Unlimited | Select-Object Name, UserPrincipalName, @{n = 'LastLogonTime'; e = { (Get-O365MailboxStatistics -Identity $_.Identity).LastLogonTime } }
+    $UserMailboxStats = Get-EXOMailbox -ResultSize Unlimited | Select-Object Name, UserPrincipalName, @{n = 'LastLogonTime'; e = { (Get-EXOMailboxStatistics -Identity $_.Identity -Properties LastLogonTIme).LastLogonTime } }
 
     # Get AD Users
     Write-Verbose -Message "Getting AD users."
