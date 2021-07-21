@@ -295,7 +295,7 @@ End {
             To          = $SendTo
             From        = $SendFrom
             SmtpServer  = $SmtpServer
-            Subject     = "Office 365 License Report - $date"
+            Subject     = "DCC Office 365 License Report - $date"
             Body        = "Attached is the Office 365 license report as of $date."
             Attachments = $SaveFilePath
         }
