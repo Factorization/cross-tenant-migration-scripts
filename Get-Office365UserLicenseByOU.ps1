@@ -156,15 +156,8 @@ BEGIN {
 
     # Connect to Exchange Online.
     Write-Verbose -Message "Connecting to Exchange Online."
-    #Try {
-        # $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $Credential -Authentication Basic -AllowRedirection -ErrorAction Stop
-        # Import-PSSession -Session $Session -DisableNameChecking -AllowClobber -Name Get-Mailbox, Get-MailboxStatistics -Prefix O365 -FormatTypeName * | Out-Null
-        Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False  -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | Out-Null
-    #}
-    #Catch {
-    #    Write-Error "Can't connect to Exchange Online service with user '$($Credential.UserName)'. Please check password and/or permissions and try again."
-    #    Break
-    #}
+    Connect-ExchangeOnline -Credential $Credential -ShowBanner:$False -ErrorAction SilentlyContinue -WarningAction SilentlyContinue | Out-Null
+
 }
 
 PROCESS {
@@ -293,7 +286,6 @@ PROCESS {
 }
 End {
     Write-Verbose -Message "Removing session to Exchange Online."
-    #Remove-PSSession -Session $Session -ErrorAction SilentlyContinue -Confirm:$FALSE | Out-Null
     Disconnect-ExchangeOnline -Confirm:$False -ErrorAction SilentlyContinue | Out-Null
 
     if ($Email) {
