@@ -50,7 +50,7 @@
 	#######################################################
 #>
 
-#Requires -Modules ExchangeOnlineManagement, AzureAD, ActiveDirectory, MSOnline
+#Requires -Modules ExchangeOnlineManagement, AzureAD, MSOnline
 
 [CmdletBinding()]
 Param(
@@ -114,7 +114,7 @@ BEGIN {
 		Try {
 			Get-AzureADTenantDetail | Out-Null
 		}
-		catch {
+		Catch {
 			Write-Host "Not connected to Azure AD. Please run Connect-AzureAD before running this script." -ForegroundColor Red
 			Exit
 		}
@@ -125,12 +125,14 @@ BEGIN {
 			Write-Host "Not connected to MSOnline Service. Please run Connect-MsolService before running this script." -ForegroundColor Red
 			Exit
 		}
-		Try {
-			Get-Command Get-AdUser | Out-Null
-		}
-		catch {
-			Write-Host "Missing AD PowerShell module. Install AD PowerShell module from RSAT before running this script." -ForegroundColor Red
-			Exit
+		If (-not $SkipAdInfo) {
+			Try {
+				Get-Command Get-AdUser | Out-Null
+			}
+			Catch {
+				Write-Host "Missing AD PowerShell module. Install AD PowerShell module from RSAT before running this script." -ForegroundColor Red
+				Exit
+			}
 		}
 	}
 
