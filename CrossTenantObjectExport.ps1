@@ -310,6 +310,19 @@ BEGIN {
 		Write-Verbose "Exporting unified group members to XML..."
 		ExportXML -Object $UGMembers -Path $GetUnifiedGroupMemberOutput -Email $SourceEmailAddress
 	}
+	Function ExportDynamicGroupInfo($Email) {
+		$SourceEmailAddress = $Email
+
+		Write-Verbose "Getting dynamic group..."
+		$DDL = Get-DynamicDistributionGroup $SourceEmailAddress
+		Write-Verbose "Exporting dynamic group to XML..."
+		ExportXML -Object $DDL -Path $GetDynamicDistributionGroupOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting dynamic group members..."
+		$DDLMembers = Get-DynamicDistributionGroupMember $SourceEmailAddress
+		Write-Verbose "Exporting dynamic group members to XML..."
+		ExportXML -Object $DDLMembers -Path $GetDynamicDistributionGroupMemberOutput -Email $SourceEmailAddress
+	}
 	##########
 	# Setup #
 	##########
@@ -353,6 +366,8 @@ BEGIN {
 	$GetDistributionGroupMemberOutput = Join-Path $Root "Distribution_Group_Member_XMLs"
 	$GetUnifiedGroupOutput = Join-Path $Root "Unified_Group_XMLs"
 	$GetUnifiedGroupMemberOutput = Join-Path $Root "Unified_Group_Member_XMLs"
+	$GetDynamicDistributionGroupOutput = Join-Path $Root "Dynamic_Distribution_Group_XMLs"
+	$GetDynamicDistributionGroupMemberOutput = Join-Path $Root "Dynamic_Distribution_Group_Member_XMLs"
 	$CsvExport = Join-Path $Root "CSV_Exports"
 
 	$Folders = @(
@@ -372,6 +387,8 @@ BEGIN {
 		$GetDistributionGroupMemberOutput,
 		$GetUnifiedGroupOutput,
 		$GetUnifiedGroupMemberOutput,
+		$GetDynamicDistributionGroupOutput,
+		$GetDynamicDistributionGroupMemberOutput,
 		$CsvExport
 	)
 	foreach ($Path in $Folders) {
@@ -437,6 +454,25 @@ PROCESS {
 			Catch {
 				$err = $_
 				Write-Verbose "Failed to export unified group $SourceEmailAddress"
+				$ErrObject = [PSCustomObject]@{
+					"Email"                = $SourceEmailAddress
+					"RecipientType"        = $Member.RecipientType
+					"RecipientTypeDetails" = $Member.RecipientTypeDetails
+					"Error"                = $err
+				}
+				$ErrorList += $ErrObject
+			}
+		}
+
+		# dynamic distribution groups
+		elseif($Member.RecipientTypeDetails -eq "DynamicDistributionGroup") {
+			Write-Verbose "Working on dynamic group $SourceEmailAddress..."
+			try {
+				ExportDynamicGroupInfo -Email $SourceEmailAddress
+			}
+			Catch {
+				$err = $_
+				Write-Verbose "Failed to export dynamic group $SourceEmailAddress"
 				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
 					"RecipientType"        = $Member.RecipientType
