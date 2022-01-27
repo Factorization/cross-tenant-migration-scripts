@@ -323,6 +323,30 @@ BEGIN {
 		Write-Verbose "Exporting dynamic group members to XML..."
 		ExportXML -Object $DDLMembers -Path $GetDynamicDistributionGroupMemberOutput -Email $SourceEmailAddress
 	}
+
+	Function ExportGuestUserInfo($Email) {
+		$SourceEmailAddress = $Email
+
+		Write-Verbose "Getting guest user info..."
+		$User = Get-User $SourceEmailAddress
+		Write-Verbose "Exporting guest user info to XML.."
+		ExportXML -Object $User -Path $GetGuestUserOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting guest recipient info..."
+		$Recipient = Get-EXORecipient $SourceEmailAddress -PropertySets All
+		Write-Verbose "Exporting guest recipient info to XML..."
+		ExportXML -Object $Recipient -Path $GetGuestRecipientOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting Azure AD guest user info..."
+		$AzureADUser = Get-AzureADUser -ObjectId $Mailbox.UserPrincipalName
+		Write-Verbose "Exporting Azure AD guest user info to XML..."
+		ExportXML -Object $AzureADUser -Path $GetGuestAzureADUserOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting MSOL guest user info..."
+		$MSOLUser = Get-MsolUser -UserPrincipalName $Mailbox.UserPrincipalName
+		Write-Verbose "Exporting Msol user info to XML..."
+		ExportXML -Object $MSOLUser -Path $GetGuestMsolUserOutput -Email $SourceEmailAddress
+	}
 	##########
 	# Setup #
 	##########
@@ -368,6 +392,10 @@ BEGIN {
 	$GetUnifiedGroupMemberOutput = Join-Path $Root "Unified_Group_Member_XMLs"
 	$GetDynamicDistributionGroupOutput = Join-Path $Root "Dynamic_Distribution_Group_XMLs"
 	$GetDynamicDistributionGroupMemberOutput = Join-Path $Root "Dynamic_Distribution_Group_Member_XMLs"
+	$GetGuestUserOutput = Join-Path $Root "Guest_User_Output_XMLs"
+	$GetGuestRecipientOutput = Join-Path $Root "Guest_Recipient_Output_XMLs"
+	$GetGuestAzureADUserOutput = Join-Path $Root "Guest_Azure_AD_User_Output_XMLs"
+	$GetGuestMsolUserOutput = Join-Path $Root "Guest_MSOL_User_Output_XMls"
 	$CsvExport = Join-Path $Root "CSV_Exports"
 
 	$Folders = @(
@@ -389,6 +417,10 @@ BEGIN {
 		$GetUnifiedGroupMemberOutput,
 		$GetDynamicDistributionGroupOutput,
 		$GetDynamicDistributionGroupMemberOutput,
+		$GetGuestUserOutput,
+		$GetGuestRecipientOutput,
+		$GetGuestAzureADUserOutput,
+		$GetGuestMsolUserOutput,
 		$CsvExport
 	)
 	foreach ($Path in $Folders) {
@@ -473,6 +505,27 @@ PROCESS {
 			Catch {
 				$err = $_
 				Write-Verbose "Failed to export dynamic group $SourceEmailAddress"
+				$ErrObject = [PSCustomObject]@{
+					"Email"                = $SourceEmailAddress
+					"RecipientType"        = $Member.RecipientType
+					"RecipientTypeDetails" = $Member.RecipientTypeDetails
+					"Error"                = $err
+				}
+				$ErrorList += $ErrObject
+			}
+		}
+
+		# Guest users (GuestMailUser)
+		elseif ($Member.RecipientTypeDetails -eq "GuestMailUser") {
+			$SourceEmailAddress = $Member.WindowsLiveID
+			Write-Verbose "Working on guest user $SourceEmailAddress..."
+
+			try {
+				ExportGuestUserInfo -Email $SourceEmailAddress
+			}
+			Catch {
+				$err = $_
+				Write-Verbose "Failed to export guest user $SourceEmailAddress"
 				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
 					"RecipientType"        = $Member.RecipientType
