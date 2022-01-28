@@ -338,12 +338,12 @@ BEGIN {
 		ExportXML -Object $Recipient -Path $GetGuestRecipientOutput -Email $SourceEmailAddress
 
 		Write-Verbose "Getting Azure AD guest user info..."
-		$AzureADUser = Get-AzureADUser -ObjectId $Mailbox.UserPrincipalName
+		$AzureADUser = Get-AzureADUser -ObjectId $SourceEmailAddress
 		Write-Verbose "Exporting Azure AD guest user info to XML..."
 		ExportXML -Object $AzureADUser -Path $GetGuestAzureADUserOutput -Email $SourceEmailAddress
 
 		Write-Verbose "Getting MSOL guest user info..."
-		$MSOLUser = Get-MsolUser -UserPrincipalName $Mailbox.UserPrincipalName
+		$MSOLUser = Get-MsolUser -UserPrincipalName $SourceEmailAddress
 		Write-Verbose "Exporting Msol user info to XML..."
 		ExportXML -Object $MSOLUser -Path $GetGuestMsolUserOutput -Email $SourceEmailAddress
 	}
