@@ -161,6 +161,18 @@ BEGIN {
 			ExportXML -Object $Statistics -Path $GetMailboxStatisticsOutput -Email $SourceEmailAddress
 		}
 
+		if ($IncludeMailboxStats) {
+			if($Mailbox.ArchiveGuid -ne '00000000-0000-0000-0000-000000000000'){
+				Write-Verbose "Getting archive mailbox statistics..."
+				$Archive = Get-EXOMailboxStatistics $SourceEmailAddress -PropertySets All -Archive
+				Write-Verbose "Exporting archive mailbox statistics to XML..."
+				ExportXML -Object $Archive -Path $GetMailboxStatisticsOutput -Email "Archive_$SourceEmailAddress"
+			}
+			else{
+				$Archive = $null
+			}
+		}
+
 		Write-Verbose "Getting Azure AD user info..."
 		$AzureADUser = Get-AzureADUser -ObjectId $Mailbox.UserPrincipalName
 		Write-Verbose "Exporting Azure AD user info to XML..."
@@ -282,6 +294,8 @@ BEGIN {
 			HiddenFromAddressListsEnabled          = $Mailbox.HiddenFromAddressListsEnabled
 			MailboxSize                            = $Statistics.TotalItemSize
 			MailboxItemCount                       = $Statistics.ItemCount
+			ArchiveSize                            = $Archive.TotalItemSize
+			ArchiveItemCount                       = $Archive.ItemCount
 		}
 	}
 	Function ExportGroupInfo($Email) {
@@ -497,7 +511,7 @@ PROCESS {
 		}
 
 		# dynamic distribution groups
-		elseif($Member.RecipientTypeDetails -eq "DynamicDistributionGroup") {
+		elseif ($Member.RecipientTypeDetails -eq "DynamicDistributionGroup") {
 			Write-Verbose "Working on dynamic group $SourceEmailAddress..."
 			try {
 				ExportDynamicGroupInfo -Email $SourceEmailAddress
