@@ -111,9 +111,6 @@ PROCESS {
         if ($LastName) {
             $Properties.LastName = $LastName
         }
-        if ($Office) {
-            $Properties.Office = $Office
-        }
 
         # Create Mailbox
         if (-not $NewMailbox) {
@@ -185,6 +182,22 @@ PROCESS {
             Continue
         }
 
+        # Set Office
+        if ($Office) {
+            try {
+                Set-Mailbox $PrimarySmtpAddress -Office $Office | Out-Null
+                $ResultLog.Results += "Set office."
+            }
+            Catch {
+                $err = $_
+                $ResultLog.Results += "Unable to update mailbox office. Error: $err"
+                SaveResult -Result $ResultLog
+                $ResultLog | Out-Host
+                $Error_Count++
+                Continue
+            }
+        }
+
         # Set HiddenFromAddressListsEnabled
         if ($HiddenFromAddressListsEnabled) {
             try {
@@ -203,10 +216,10 @@ PROCESS {
 
         # Set ArchiveEnabled
         if ($ArchiveEnabled) {
-            if($NewMailbox.ArchiveGuid -ne "00000000-0000-0000-0000-000000000000"){
+            if ($NewMailbox.ArchiveGuid -ne "00000000-0000-0000-0000-000000000000") {
                 $ResultLog.Results += "Archive mailbox already enabled."
             }
-            else{
+            else {
                 try {
                     Enable-Mailbox $PrimarySmtpAddress -Archive | Out-Null
                     $ResultLog.Results += "Enabled archive mailbox."
