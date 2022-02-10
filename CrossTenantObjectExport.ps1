@@ -154,6 +154,13 @@ BEGIN {
 		Write-Verbose "Exporting mailbox info to XML..."
 		ExportXML -Object $Mailbox -Path $GetMailboxOutput -Email $SourceEmailAddress
 
+		if ($mailbox.RecipientTypeDetails -eq "RoomMailbox" -or $mailbox.RecipientTypeDetails -eq "EquipmentMailbox") {
+			Write-Verbose "Getting calendaring processing info..."
+			$CalendarProcessing = Get-CalendarProcessing $SourceEmailAddress
+			Write-Verbose "Exporting calendar processing info to XML..."
+			ExportXML -Object $CalendarProcessing -Path $GetCalendarProcessing -Email $SourceEmailAddress
+		}
+
 		if ($IncludeMailboxStats) {
 			Write-Verbose "Getting mailbox statistics..."
 			$Statistics = Get-EXOMailboxStatistics $SourceEmailAddress -PropertySets All
@@ -162,13 +169,13 @@ BEGIN {
 		}
 
 		if ($IncludeMailboxStats) {
-			if($Mailbox.ArchiveGuid -ne '00000000-0000-0000-0000-000000000000'){
+			if ($Mailbox.ArchiveGuid -ne '00000000-0000-0000-0000-000000000000') {
 				Write-Verbose "Getting archive mailbox statistics..."
 				$Archive = Get-EXOMailboxStatistics $SourceEmailAddress -PropertySets All -Archive
 				Write-Verbose "Exporting archive mailbox statistics to XML..."
 				ExportXML -Object $Archive -Path $GetMailboxStatisticsOutput -Email "Archive_$SourceEmailAddress"
 			}
-			else{
+			else {
 				$Archive = $null
 			}
 		}
@@ -391,6 +398,7 @@ BEGIN {
 	$GetUserOutput = Join-Path $Root "User_Output_XMLs"
 	$GetRecipientOutput = Join-Path $Root "Recipient_Output_XMLs"
 	$GetMailboxOutput = Join-Path $Root "Mailbox_Output_XMLs"
+	$GetCalendarProcessing = Join-Path $Root "Calendar_Processing_XMLs"
 	$GetMailboxStatisticsOutput = Join-Path $Root "Mailbox_Statistics_XMLs"
 	$GetAzureADUserOutput = Join-Path $Root "Azure_AD_User_Output_XMLs"
 	$GetMsolUserOutput = Join-Path $Root "MSOL_User_Output_XMls"
@@ -416,6 +424,7 @@ BEGIN {
 		$GetUserOutput,
 		$GetRecipientOutput,
 		$GetMailboxOutput,
+		$GetCalendarProcessing,
 		$GetMailboxStatisticsOutput,
 		$GetAzureADUserOutput,
 		$GetMsolUserOutput,
