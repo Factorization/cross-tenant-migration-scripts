@@ -18,7 +18,7 @@ PROCESS {
     $Results = @()
     foreach ($XML in $XMLs) {
         $User_XML = $User_XMLs | Where-Object {$_.Name -eq $XML.Name}
-        $AzureADUser = Import-Clixml $User_XML
+        $AzureADUser = Import-Clixml $User_XML.FullName
         $User = $AzureADUser.Mail
         $Groups = Import-Clixml $XML.FullName | Where-Object { $_.DisplayName -notin $ExcludeGroups }
         foreach ($Group in $Groups) {
