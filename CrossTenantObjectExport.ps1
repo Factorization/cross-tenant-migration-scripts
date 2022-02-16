@@ -367,6 +367,11 @@ BEGIN {
 		$MSOLUser = Get-MsolUser -UserPrincipalName $SourceEmailAddress
 		Write-Verbose "Exporting Msol user info to XML..."
 		ExportXML -Object $MSOLUser -Path $GetGuestMsolUserOutput -Email $SourceEmailAddress
+
+		Write-Verbose "Getting Azure AD guest user group membership..."
+		$AzureADGuestGroupMembership = Get-AzureADUserMembership -ObjectId $AzureADUser.ObjectId
+		Write-Verbose "Exporting Azure AD guest user group membership..."
+		ExportXML -Object $AzureADGuestGroupMembership -Path $GetGuestAzureADMembershipOutput -Email $SourceEmailAddress
 	}
 	##########
 	# Setup #
@@ -418,6 +423,7 @@ BEGIN {
 	$GetGuestRecipientOutput = Join-Path $Root "Guest_Recipient_Output_XMLs"
 	$GetGuestAzureADUserOutput = Join-Path $Root "Guest_Azure_AD_User_Output_XMLs"
 	$GetGuestMsolUserOutput = Join-Path $Root "Guest_MSOL_User_Output_XMls"
+	$GetGuestAzureADMembershipOutput = Join-Path $Root "Guest_Azure_AD_User_Group_Membership_Output_XMls"
 	$CsvExport = Join-Path $Root "CSV_Exports"
 
 	$Folders = @(
@@ -444,6 +450,7 @@ BEGIN {
 		$GetGuestRecipientOutput,
 		$GetGuestAzureADUserOutput,
 		$GetGuestMsolUserOutput,
+		$GetGuestAzureADMembershipOutput,
 		$CsvExport
 	)
 	foreach ($Path in $Folders) {
