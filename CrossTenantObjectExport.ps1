@@ -423,7 +423,7 @@ BEGIN {
 	$GetGuestRecipientOutput = Join-Path $Root "Guest_Recipient_Output_XMLs"
 	$GetGuestAzureADUserOutput = Join-Path $Root "Guest_Azure_AD_User_Output_XMLs"
 	$GetGuestMsolUserOutput = Join-Path $Root "Guest_MSOL_User_Output_XMls"
-	$GetGuestAzureADMembershipOutput = Join-Path $Root "Guest_Azure_AD_User_Group_Membership_Output_XMls"
+	$GetGuestAzureADMembershipOutput = Join-Path $Root "Guest_Azure_AD_User_Group_Membership_Output_XMLs"
 	$CsvExport = Join-Path $Root "CSV_Exports"
 
 	$Folders = @(
