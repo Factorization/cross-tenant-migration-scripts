@@ -16,11 +16,13 @@ PROCESS {
     $Results = @()
     foreach ($XML in $XMLs) {
         $User = ($XML.basename -split "#EXT#")[0]
+        $IndexOfUnderscore = $User.LastIndexOf("_")
+        $User = $User.remove($IndexOfUnderscore, 1).insert($IndexOfUnderscore, "@")
         $Groups = Import-Clixml $XML.FullName | Where-Object { $_.DisplayName -notin $ExcludeGroups }
         foreach ($Group in $Groups) {
             $Results += [PSCustomObject]@{
-                GuestUser = $User
-                GroupName = $Group.DisplayName
+                GuestUser  = $User
+                GroupName  = $Group.DisplayName
                 GroupEmail = $Group.Mail
             }
         }
