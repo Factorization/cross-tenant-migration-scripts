@@ -20,8 +20,6 @@ PROCESS {
         $User_XML = $User_XMLs | Where-Object {$_.Name -eq $XML.Name}
         $AzureADUser = Import-Clixml $User_XML
         $User = $AzureADUser.Mail
-        $IndexOfUnderscore = $User.LastIndexOf("_")
-        $User = $User.remove($IndexOfUnderscore, 1).insert($IndexOfUnderscore, "@")
         $Groups = Import-Clixml $XML.FullName | Where-Object { $_.DisplayName -notin $ExcludeGroups }
         foreach ($Group in $Groups) {
             $Results += [PSCustomObject]@{
