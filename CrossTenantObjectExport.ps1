@@ -369,7 +369,7 @@ BEGIN {
 		ExportXML -Object $MSOLUser -Path $GetGuestMsolUserOutput -Email $SourceEmailAddress
 
 		Write-Verbose "Getting Azure AD guest user group membership..."
-		$AzureADGuestGroupMembership = Get-AzureADUserMembership -ObjectId $AzureADUser.ObjectId
+		$AzureADGuestGroupMembership = Get-AzureADUserMembership -ObjectId $AzureADUser.ObjectId -All $true
 		Write-Verbose "Exporting Azure AD guest user group membership..."
 		ExportXML -Object $AzureADGuestGroupMembership -Path $GetGuestAzureADMembershipOutput -Email $SourceEmailAddress
 	}
