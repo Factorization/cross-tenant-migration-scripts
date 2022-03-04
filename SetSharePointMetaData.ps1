@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "11877.pdf" }
+    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "7608-write off.xlsx" }
 }
 PROCESS {
 
@@ -153,7 +153,6 @@ PROCESS {
             $ValuesToUpdate["Manufacturer"] = $null
         }
 
-        # if ($ValuesToUpdate) {
         try {
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
             Write-Host "Filename: $($Line.FileName)"
@@ -170,13 +169,6 @@ PROCESS {
             $Line | Out-Host
             Continue
         }
-        # }
-        # else {
-        #     $Line | Add-Member -MemberType NoteProperty -Name Error -Value "No metadata values to set. Skipping"
-        #     $ErrorList += $Line
-        #     $Line | Out-Host
-        #     Continue
-        # }
     }
 }
 END {
