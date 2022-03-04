@@ -24,6 +24,11 @@ BEGIN {
     # Connect PNP Online
     Connect-PnPOnline -Url $SiteUrl -UseWebLogin
 
+    # Get all Taxonomy IDs
+    Write-Host "Getting all Taxonomies..." -NoNewline
+    $TermIds = Export-PnPTaxonomy -IncludeID
+    Write-Host "DONE" -ForegroundColor Green
+
     $CSV = Import-Csv -LiteralPath $CSVFile | select -First 1
 }
 PROCESS{
@@ -35,6 +40,8 @@ PROCESS{
     foreach ($Line in $CSV){
         $RelativePath = $Line.RelativePath
         $VendorFullPath = $Line.VendorFullPath
+        $VendorLabel = $Line.VendorLabel
+
         # Update relative path
         $RelativePath = $RelativePath -replace "^/teams/Acctg", "/sites/Taborda_Acctg"
 
@@ -73,8 +80,23 @@ PROCESS{
             Continue
         }
 
+        $TermID = $TermIds | Where-Object {$_ -like "*|$VendorLabel;#*"}
+        if(-not $TermId){
+            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Failed to find term ID. Skipping"
+            $ErrorList += $Line
+            $Line | Out-Host
+            Continue
+        }
+        if(($TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1){
+            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple term IDs. Skipping"
+            $ErrorList += $Line
+            $Line | Out-Host
+            Continue
+        }
+        $TermID = ($TermId -split "#")[-1]
+
         try{
-            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = "'$VendorFullPath'"} | Out-Null
+            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID} | Out-Null
         }
         Catch{
             $err = $_
