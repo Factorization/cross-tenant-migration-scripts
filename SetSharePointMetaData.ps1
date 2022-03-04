@@ -24,7 +24,7 @@ BEGIN {
     # Connect PNP Online
     Connect-PnPOnline -Url $SiteUrl -UseWebLogin
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Select-Object -First 1
+    $CSV = Import-Csv -LiteralPath $CSVFile
 }
 PROCESS{
 
