@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "7608-write off.xlsx" }
+    $CSV = Import-Csv -LiteralPath $CSVFile
 }
 PROCESS {
 
@@ -155,12 +155,12 @@ PROCESS {
 
         try {
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
-            Write-Host "Filename: $($Line.FileName)"
-            Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
-            Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
-            Write-Host "`tCustomers: $($CustomersLabel -join "|") ($Customers_TermID)"
-            Write-Host "`tManufacturer: $($ManufacturerLabel -join "|") ($Manufacturer_TermID)"
-            $ValuesToUpdate | Out-Host
+            # Write-Host "Filename: $($Line.FileName)"
+            # Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
+            # Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
+            # Write-Host "`tCustomers: $($CustomersLabel -join "|") ($Customers_TermID)"
+            # Write-Host "`tManufacturer: $($ManufacturerLabel -join "|") ($Manufacturer_TermID)"
+            # $ValuesToUpdate | Out-Host
         }
         Catch {
             $err = $_
