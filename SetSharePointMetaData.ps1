@@ -73,7 +73,7 @@ PROCESS{
         }
 
         try{
-            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = "$VendorFullPath"} | Out-Null
+            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = "'$VendorFullPath'"} | Out-Null
         }
         Catch{
             $err = $_
