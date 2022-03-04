@@ -62,6 +62,12 @@ PROCESS{
             $Line | Out-Host
             Continue
         }
+        if(-not $File){
+            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Failed to find file. Skipping"
+            $ErrorList += $Line
+            $Line | Out-Host
+            Continue
+        }
 
         try{
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $VendorFullPath} | Out-Null
