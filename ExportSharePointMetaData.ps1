@@ -70,7 +70,7 @@ PROCESS {
         $Vendor = GetFieldValue -Value "Vendor" -FileListItem $PNPFileListItem
         $Vehicle = GetFieldValue -Value "Vehicle" -FileListItem $PNPFileListItem
         $Customers = GetFieldValue -Value "Customers" -FileListItem $PNPFileListItem
-        $Manufacturer = GetFieldValue -Value "Manufacturer" -FileListItem $PNPFileListItem
+        $Manufacturer = GetFieldValue -Value "Product" -FileListItem $PNPFileListItem
 
         [PSCustomObject]@{
             FileName             = $Name
