@@ -143,7 +143,7 @@ PROCESS {
 
         if ($Values) {
             try {
-                #Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID } | Out-Null
+                Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID } | Out-Null
                 Write-Host "Filename: $($Line.FileName)"
                 Write-Host "`tVendor: $($VendorLabel[-1]) ($Vendor_TermID)"
                 Write-Host "`tVehicle: $($VehicleLabel[-1]) ($Vehicle_TermID)"
