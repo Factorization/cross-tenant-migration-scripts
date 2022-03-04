@@ -75,8 +75,9 @@ PROCESS {
         }
 
         if ($VendorFullPath) {
-            $VendorLabel = ($VendorFullPath -split "\|")[-1]
-            $Vendor_TermID = $TermIds | Where-Object { $_ -like "*|$VendorLabel;#*" }
+            $VendorLabel = ($VendorFullPath -split "\|")
+            $VendorSearch = (($VendorLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $Vendor_TermID = $TermIds | Where-Object { $_ -like $VendorSearch }
 
             if (($Vendor_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
                 $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Vendor term IDs. Skipping"
@@ -86,8 +87,9 @@ PROCESS {
             }
         }
         if ($VehicleFullPath) {
-            $VehicleLabel = ($VehicleFullPath -split "\|")[-1]
-            $Vehicle_TermID = $TermIds | Where-Object { $_ -like "*|$VehicleLabel;#*" }
+            $VehicleLabel = ($VehicleFullPath -split "\|")
+            $VehicleSearch = (($VehicleLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $Vehicle_TermID = $TermIds | Where-Object { $_ -like $VehicleSearch }
 
             if (($Vehicle_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
                 $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Vehicle term IDs. Skipping"
@@ -97,8 +99,9 @@ PROCESS {
             }
         }
         if ($CustomersFullPath) {
-            $CustomersLabel = ($CustomersFullPath -split "\|")[-1]
-            $Customers_TermID = $TermIds | Where-Object { $_ -like "*|$CustomersLabel;#*" }
+            $CustomersLabel = ($CustomersFullPath -split "\|")
+            $CustomersSearch = (($CustomersLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $Customers_TermID = $TermIds | Where-Object { $_ -like $CustomersSearch }
 
             if (($Customers_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
                 $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Customers term IDs. Skipping"
@@ -108,8 +111,9 @@ PROCESS {
             }
         }
         if ($ManufacturerFullPath) {
-            $ManufacturerLabel = ($ManufacturerFullPath -split "\|")[-1]
-            $Manufacturer_TermID = $TermIds | Where-Object { $_ -like "*|$ManufacturerLabel;#*" }
+            $ManufacturerLabel = ($ManufacturerFullPath -split "\|")
+            $ManufacturerSearch = (($ManufacturerLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $Manufacturer_TermID = $TermIds | Where-Object { $_ -like $ManufacturerSearch }
 
             if (($TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
                 $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple term IDs. Skipping"
