@@ -40,7 +40,6 @@ PROCESS{
     foreach ($Line in $CSV){
         $RelativePath = $Line.RelativePath
         $VendorFullPath = $Line.VendorFullPath
-        $VendorLabel = $Line.VendorLabel
 
         # Update relative path
         $RelativePath = $RelativePath -replace "^/teams/Acctg", "/sites/Taborda_Acctg"
@@ -79,7 +78,7 @@ PROCESS{
             $Line | Out-Host
             Continue
         }
-
+        $VendorLabel = ($VendorFullPath -split "\|")[-1]
         $TermID = $TermIds | Where-Object {$_ -like "*|$VendorLabel;#*"}
         if(-not $TermId){
             $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Failed to find term ID. Skipping"
