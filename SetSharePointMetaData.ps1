@@ -155,7 +155,7 @@ PROCESS {
 
         # if ($ValuesToUpdate) {
         try {
-            #Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
+            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
             Write-Host "Filename: $($Line.FileName)"
             Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
             Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
