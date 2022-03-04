@@ -21,7 +21,9 @@ BEGIN {
     Connect-PnPOnline -Url $SiteUrl -UseWebLogin
 
     # Get all Taxonomy IDs
+    Write-Host "Getting all Taxonomies..." -NoNewline
     $sourceTermIds = Export-PnPTaxonomy -IncludeID
+    Write-Host "DONE" -ForegroundColor Green
 
     function LookupTerm($TermGuid) {
         $Result = $sourceTermIds | Where-Object { ($_ -split ";")[-1] -eq "#$TermGuid" }
@@ -30,7 +32,10 @@ BEGIN {
     }
 }
 PROCESS {
-    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl "Bill Pay" -ItemType File | Select-Object -First 1
+    Write-Host "Getting files in $DocumentLibrary..." -NoNewline
+    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl "Bill Pay" -ItemType File
+    Write-Host "DONE" -ForegroundColor Green
+    
     $Total = $Files | Measure-Object | Select-Object -ExpandProperty Count
     $i = 0
     foreach ($File in $files) {
