@@ -24,7 +24,7 @@ BEGIN {
     # Connect PNP Online
     Connect-PnPOnline -Url $SiteUrl -UseWebLogin
 
-    $CSV = Import-Csv -LiteralPath $CSVFile
+    $CSV = Import-Csv -LiteralPath $CSVFile | select -First 1
 }
 PROCESS{
 
@@ -73,7 +73,7 @@ PROCESS{
         }
 
         try{
-            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $VendorFullPath} | Out-Null
+            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = "$VendorFullPath"} | Out-Null
         }
         Catch{
             $err = $_
