@@ -143,7 +143,7 @@ PROCESS {
             $ValuesToUpdate["Customers"] = $Customers_TermID
         }
         else {
-            $ValuesToUpdate["Customers"]
+            $ValuesToUpdate["Customers"] = $null
         }
         if ($Manufacturer_TermID) {
             $Manufacturer_TermID = ($Manufacturer_TermID -split "#")[-1]
