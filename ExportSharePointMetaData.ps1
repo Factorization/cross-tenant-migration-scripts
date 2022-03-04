@@ -48,7 +48,7 @@ BEGIN {
 }
 PROCESS {
     Write-Host "Getting files in $DocumentLibrary..." -NoNewline
-    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl "Bill Pay" -ItemType File
+    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl $DocumentLibrary -ItemType File | Select-Object -First 1
     Write-Host "DONE" -ForegroundColor Green
 
     $Total = $Files | Measure-Object | Select-Object -ExpandProperty Count
