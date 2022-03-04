@@ -36,7 +36,7 @@ PROCESS{
         $RelativePath = $Line.RelativePath
         $VendorFullPath = $Line.VendorFullPath
 
-        Write-Progress -Activity "Adding metadata to files..." -Status "Files: [ $i / $Total ] | Errors: $($ErrorList | Measure-Object | Select-Object -ExpandProperty Count)" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Activity "Adding metadata to files..." -Status "Files: [ $i / $Total ] | Errors: $($ErrorList | Measure-Object | Select-Object -ExpandProperty Count) | Current File: $RelativePath" -PercentComplete (($i / $Total) * 100)
         $i++
 
         if(-not $RelativePath){
