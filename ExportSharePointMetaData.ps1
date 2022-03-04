@@ -30,12 +30,27 @@ BEGIN {
         $Result = ($Result -split ";" | ForEach-Object { $_ -split "\|" | Where-Object { $_ -notlike "#*" } }) -join "|"
         return $Result
     }
+
+    function GetFieldValue($Value, $FileListItem) {
+        $Field_Value = $FileListItem.FieldValues[$Value]
+        $Field_Label = $Field_Value.Label
+        $Field_Guid = $Field_Value.TermGuid
+        $Field_FullPath = LookupTerm -TermGuid $Field_Guid
+
+        $Results = [PSCustomObject]@{
+            Value    = $Field_Value
+            Label    = $Field_Label
+            Guid     = $Field_Guid
+            FullPath = $Field_FullPath
+        }
+        return $Results
+    }
 }
 PROCESS {
     Write-Host "Getting files in $DocumentLibrary..." -NoNewline
     $Files = Get-PnPFolderItem -FolderSiteRelativeUrl "Bill Pay" -ItemType File
     Write-Host "DONE" -ForegroundColor Green
-    
+
     $Total = $Files | Measure-Object | Select-Object -ExpandProperty Count
     $i = 0
     foreach ($File in $files) {
@@ -47,16 +62,27 @@ PROCESS {
 
         $PNPFileListItem = Get-PnPFile -AsListItem -Url $RelativePath
 
-        $Vendor_Value = $PNPFileListItem.FieldValues["Vendor"]
-        $Vendor_Label = $Vendor_Value.Label
-        $Vendor_Guid = $Vendor_Value.TermGuid
-        $Vendor_FullPath = LookupTerm -TermGuid $Vendor_Guid
+        # Vendor
+        # $Vendor_Value = $PNPFileListItem.FieldValues["Vendor"]
+        # $Vendor_Label = $Vendor_Value.Label
+        # $Vendor_Guid = $Vendor_Value.TermGuid
+        # $Vendor_FullPath = LookupTerm -TermGuid $Vendor_Guid
+        $Vendor = GetFieldValue -Value "Vendor" -FileListItem $PNPFileListItem
+        $Vehicle = GetFieldValue -Value "Vehicle" -FileListItem $PNPFileListItem
+        $Customers = GetFieldValue -Value "Customers" -FileListItem $PNPFileListItem
+        $Manufacturer = GetFieldValue -Value "Manufacturer" -FileListItem $PNPFileListItem
 
         [PSCustomObject]@{
-            FileName = $Name
-            RelativePath = $RelativePath
-            VendorLabel = $Vendor_Label
-            VendorFullPath = $Vendor_FullPath
+            FileName             = $Name
+            RelativePath         = $RelativePath
+            VendorLabel          = $Vendor.Label
+            VendorFullPath       = $Vendor.FullPath
+            VehicleLabel         = $Vehicle.Label
+            VehicleFullPath      = $Vehicle.FullPath
+            CustomersLabel       = $Customers.Label
+            CustomersFullPath    = $Customers.FullPath
+            ManufacturerLabel    = $Manufacturer.Label
+            ManufacturerFullPath = $Manufacturer.FullPath
         }
     }
 }
