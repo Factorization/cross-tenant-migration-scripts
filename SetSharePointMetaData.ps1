@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile
+    $CSV = Import-Csv -LiteralPath $CSVFile | Select-Object -First 1
 }
 PROCESS {
 
