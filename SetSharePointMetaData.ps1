@@ -145,10 +145,10 @@ PROCESS {
             try {
                 #Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID } | Out-Null
                 Write-Host "Filename: $($File.Name)"
-                Write-Host "`tVendor: $VendorLabel ($Vendor_TermID)"
-                Write-Host "`tVehicle: $VehicleLabel ($Vehicle_TermID)"
-                Write-Host "`tCustomers: $CustomersLabel ($Customers_TermID)"
-                Write-Host "`tManufacturer: $ManufacturerLabel ($Manufacturer_TermID)"
+                Write-Host "`tVendor: $($VendorLabel[0]) ($Vendor_TermID)"
+                Write-Host "`tVehicle: $($VehicleLabel[0]) ($Vehicle_TermID)"
+                Write-Host "`tCustomers: $($CustomersLabel[0]) ($Customers_TermID)"
+                Write-Host "`tManufacturer: $($ManufacturerLabel[0]) ($Manufacturer_TermID)"
                 $Values | Out-Host
             }
             Catch {
