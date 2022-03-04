@@ -48,7 +48,7 @@ BEGIN {
 }
 PROCESS {
     Write-Host "Getting files in $DocumentLibrary..." -NoNewline
-    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl $DocumentLibrary -ItemType File | Select-Object -First 1
+    $Files = Get-PnPFolderItem -FolderSiteRelativeUrl $DocumentLibrary -ItemType File
     Write-Host "DONE" -ForegroundColor Green
 
     $Total = $Files | Measure-Object | Select-Object -ExpandProperty Count
@@ -62,11 +62,6 @@ PROCESS {
 
         $PNPFileListItem = Get-PnPFile -AsListItem -Url $RelativePath
 
-        # Vendor
-        # $Vendor_Value = $PNPFileListItem.FieldValues["Vendor"]
-        # $Vendor_Label = $Vendor_Value.Label
-        # $Vendor_Guid = $Vendor_Value.TermGuid
-        # $Vendor_FullPath = LookupTerm -TermGuid $Vendor_Guid
         $Vendor = GetFieldValue -Value "Vendor" -FileListItem $PNPFileListItem
         $Vehicle = GetFieldValue -Value "Vehicle" -FileListItem $PNPFileListItem
         $Customers = GetFieldValue -Value "Customers" -FileListItem $PNPFileListItem
