@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.CustomersFullPath -like '*"*' } | Select-Object -First 1
+    $CSV = Import-Csv -LiteralPath $CSVFile
 }
 PROCESS {
 
@@ -144,12 +144,12 @@ PROCESS {
         if ($Values) {
             try {
                 Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $Values | Out-Null
-                Write-Host "Filename: $($Line.FileName)"
-                Write-Host "`tVendor: $($VendorLabel[-1]) ($Vendor_TermID)"
-                Write-Host "`tVehicle: $($VehicleLabel[-1]) ($Vehicle_TermID)"
-                Write-Host "`tCustomers: $($CustomersLabel[-1]) ($Customers_TermID)"
-                Write-Host "`tManufacturer: $($ManufacturerLabel[-1]) ($Manufacturer_TermID)"
-                $Values | Out-Host
+                # Write-Host "Filename: $($Line.FileName)"
+                # Write-Host "`tVendor: $($VendorLabel[-1]) ($Vendor_TermID)"
+                # Write-Host "`tVehicle: $($VehicleLabel[-1]) ($Vehicle_TermID)"
+                # Write-Host "`tCustomers: $($CustomersLabel[-1]) ($Customers_TermID)"
+                # Write-Host "`tManufacturer: $($ManufacturerLabel[-1]) ($Manufacturer_TermID)"
+                # $Values | Out-Host
             }
             Catch {
                 $err = $_
