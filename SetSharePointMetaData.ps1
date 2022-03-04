@@ -115,8 +115,8 @@ PROCESS {
             $ManufacturerSearch = (($ManufacturerLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
             $Manufacturer_TermID = $TermIds | Where-Object { $_ -like $ManufacturerSearch }
 
-            if (($TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
-                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple term IDs. Skipping"
+            if (($Manufacturer_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Manufacturer term IDs. Skipping"
                 $ErrorList += $Line
                 $Line | Out-Host
                 Continue
