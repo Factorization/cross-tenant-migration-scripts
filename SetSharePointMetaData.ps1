@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Select-Object -First 1
+    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.CustomersFullPath -like '*"*' } | Select-Object -First 1
 }
 PROCESS {
 
@@ -76,7 +76,7 @@ PROCESS {
 
         if ($VendorFullPath) {
             $VendorLabel = ($VendorFullPath -split "\|")
-            $VendorSearch = (($VendorLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $VendorSearch = (($VendorLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
             $Vendor_TermID = $TermIds | Where-Object { $_ -like $VendorSearch }
 
             if (($Vendor_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
@@ -88,7 +88,7 @@ PROCESS {
         }
         if ($VehicleFullPath) {
             $VehicleLabel = ($VehicleFullPath -split "\|")
-            $VehicleSearch = (($VehicleLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $VehicleSearch = (($VehicleLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
             $Vehicle_TermID = $TermIds | Where-Object { $_ -like $VehicleSearch }
 
             if (($Vehicle_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
@@ -100,7 +100,7 @@ PROCESS {
         }
         if ($CustomersFullPath) {
             $CustomersLabel = ($CustomersFullPath -split "\|")
-            $CustomersSearch = (($CustomersLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $CustomersSearch = (($CustomersLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
             $Customers_TermID = $TermIds | Where-Object { $_ -like $CustomersSearch }
 
             if (($Customers_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
@@ -112,7 +112,7 @@ PROCESS {
         }
         if ($ManufacturerFullPath) {
             $ManufacturerLabel = ($ManufacturerFullPath -split "\|")
-            $ManufacturerSearch = (($ManufacturerLabel | ForEach-Object {"$_;#*|"}) -join "").TrimEnd("|")
+            $ManufacturerSearch = (($ManufacturerLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
             $Manufacturer_TermID = $TermIds | Where-Object { $_ -like $ManufacturerSearch }
 
             if (($Manufacturer_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
