@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile
+    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "11877.pdf" }
 }
 PROCESS {
 
@@ -123,48 +123,60 @@ PROCESS {
             }
         }
 
-        $Values = @{}
+        $ValuesToUpdate = @{}
         if ($Vendor_TermID) {
             $Vendor_TermID = ($Vendor_TermID -split "#")[-1]
-            $Values["Vendor"] = $Vendor_TermID
+            $ValuesToUpdate["Vendor"] = $Vendor_TermID
+        }
+        else {
+            $ValuesToUpdate["Vendor"] = $null
         }
         if ($Vehicle_TermID) {
             $Vehicle_TermID = ($Vehicle_TermID -split "#")[-1]
-            $Values["Vehicle"] = $Vehicle_TermID
+            $ValuesToUpdate["Vehicle"] = $Vehicle_TermID
+        }
+        else {
+            $ValuesToUpdate["Vehicle"] = $null
         }
         if ($Customers_TermID) {
             $Customers_TermID = ($Customers_TermID -split "#")[-1]
-            $Values["Customers"] = $Customers_TermID
+            $ValuesToUpdate["Customers"] = $Customers_TermID
+        }
+        else {
+            $ValuesToUpdate["Customers"]
         }
         if ($Manufacturer_TermID) {
             $Manufacturer_TermID = ($Manufacturer_TermID -split "#")[-1]
-            $Values["Manufacturer"] = $Manufacturer_TermID
-        }
-
-        if ($Values) {
-            try {
-                Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $Values | Out-Null
-                # Write-Host "Filename: $($Line.FileName)"
-                # Write-Host "`tVendor: $($VendorLabel[-1]) ($Vendor_TermID)"
-                # Write-Host "`tVehicle: $($VehicleLabel[-1]) ($Vehicle_TermID)"
-                # Write-Host "`tCustomers: $($CustomersLabel[-1]) ($Customers_TermID)"
-                # Write-Host "`tManufacturer: $($ManufacturerLabel[-1]) ($Manufacturer_TermID)"
-                # $Values | Out-Host
-            }
-            Catch {
-                $err = $_
-                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Error setting PNP list item. Error: $err"
-                $ErrorList += $Line
-                $Line | Out-Host
-                Continue
-            }
+            $ValuesToUpdate["Manufacturer"] = $Manufacturer_TermID
         }
         else {
-            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "No metadata values to set. Skipping"
+            $ValuesToUpdate["Manufacturer"] = $null
+        }
+
+        # if ($ValuesToUpdate) {
+        try {
+            #Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
+            Write-Host "Filename: $($Line.FileName)"
+            Write-Host "`tVendor: $($VendorLabel[-1]) ($Vendor_TermID)"
+            Write-Host "`tVehicle: $($VehicleLabel[-1]) ($Vehicle_TermID)"
+            Write-Host "`tCustomers: $($CustomersLabel[-1]) ($Customers_TermID)"
+            Write-Host "`tManufacturer: $($ManufacturerLabel[-1]) ($Manufacturer_TermID)"
+            $ValuesToUpdate | Out-Host
+        }
+        Catch {
+            $err = $_
+            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Error setting PNP list item. Error: $err"
             $ErrorList += $Line
             $Line | Out-Host
             Continue
         }
+        # }
+        # else {
+        #     $Line | Add-Member -MemberType NoteProperty -Name Error -Value "No metadata values to set. Skipping"
+        #     $ErrorList += $Line
+        #     $Line | Out-Host
+        #     Continue
+        # }
     }
 }
 END {
