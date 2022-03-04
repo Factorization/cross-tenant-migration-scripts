@@ -40,6 +40,9 @@ PROCESS {
     foreach ($Line in $CSV) {
         $RelativePath = $Line.RelativePath
         $VendorFullPath = $Line.VendorFullPath
+        $VehicleFullPath = $Line.VehicleFullPath
+        $CustomersFullPath = $Line.CustomersFullPath
+        $ManufacturerFullPath = $Line.ManufacturerFullPath
 
         # Update relative path
         $RelativePath = $RelativePath -replace "^/teams/Acctg", "/sites/Taborda_Acctg"
@@ -54,12 +57,6 @@ PROCESS {
             Continue
         }
 
-        if (-not $VendorFullPath) {
-            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Vendor Path is empty. Skipping."
-            $ErrorList += $Line
-            $Line | Out-Host
-            Continue
-        }
         Try {
             $File = Get-PnPFile -Url $RelativePath -AsListItem
         }
@@ -76,28 +73,90 @@ PROCESS {
             $Line | Out-Host
             Continue
         }
-        $VendorLabel = ($VendorFullPath -split "\|")[-1]
-        $TermID = $TermIds | Where-Object { $_ -like "*|$VendorLabel;#*" }
-        if (-not $TermId) {
-            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Failed to find term ID. Skipping"
-            $ErrorList += $Line
-            $Line | Out-Host
-            Continue
-        }
-        if (($TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
-            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple term IDs. Skipping"
-            $ErrorList += $Line
-            $Line | Out-Host
-            Continue
-        }
-        $TermID = ($TermId -split "#")[-1]
 
-        try {
-            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID } | Out-Null
+        if ($VendorFullPath) {
+            $VendorLabel = ($VendorFullPath -split "\|")[-1]
+            $Vendor_TermID = $TermIds | Where-Object { $_ -like "*|$VendorLabel;#*" }
+
+            if (($Vendor_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Vendor term IDs. Skipping"
+                $ErrorList += $Line
+                $Line | Out-Host
+                Continue
+            }
         }
-        Catch {
-            $err = $_
-            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Error setting PNP list item. Error: $err"
+        if ($VehicleFullPath) {
+            $VehicleLabel = ($VehicleFullPath -split "\|")[-1]
+            $Vehicle_TermID = $TermIds | Where-Object { $_ -like "*|$VehicleLabel;#*" }
+
+            if (($Vehicle_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Vehicle term IDs. Skipping"
+                $ErrorList += $Line
+                $Line | Out-Host
+                Continue
+            }
+        }
+        if ($CustomersFullPath) {
+            $CustomersLabel = ($CustomersFullPath -split "\|")[-1]
+            $Customers_TermID = $TermIds | Where-Object { $_ -like "*|$CustomersLabel;#*" }
+
+            if (($Customers_TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple Customers term IDs. Skipping"
+                $ErrorList += $Line
+                $Line | Out-Host
+                Continue
+            }
+        }
+        if ($ManufacturerFullPath) {
+            $ManufacturerLabel = ($ManufacturerFullPath -split "\|")[-1]
+            $Manufacturer_TermID = $TermIds | Where-Object { $_ -like "*|$ManufacturerLabel;#*" }
+
+            if (($TermID | Measure-Object | Select-Object -ExpandProperty Count) -ne 1) {
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Found multiple term IDs. Skipping"
+                $ErrorList += $Line
+                $Line | Out-Host
+                Continue
+            }
+        }
+
+        $Values = @{}
+        if ($Vendor_TermID) {
+            $Vendor_TermID = ($Vendor_TermID -split "#")[-1]
+            $Values["Vendor"] = $Vendor_TermID
+        }
+        if ($Vehicle_TermID) {
+            $Vehicle_TermID = ($Vehicle_TermID -split "#")[-1]
+            $Values["Vehicle"] = $Vehicle_TermID
+        }
+        if ($Customers_TermID) {
+            $Customers_TermID = ($Customers_TermID -split "#")[-1]
+            $Values["Customers"] = $Customers_TermID
+        }
+        if ($Manufacturer_TermID) {
+            $Manufacturer_TermID = ($Manufacturer_TermID -split "#")[-1]
+            $Values["Manufacturer"] = $Manufacturer_TermID
+        }
+
+        if ($Values) {
+            try {
+                #Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $TermID } | Out-Null
+                Write-Host "Filename: $($File.Name)"
+                Write-Host "`tVendor: $VendorLabel ($Vendor_TermID)"
+                Write-Host "`tVehicle: $VehicleLabel ($Vehicle_TermID)"
+                Write-Host "`tCustomers: $CustomersLabel ($Customers_TermID)"
+                Write-Host "`tManufacturer: $ManufacturerLabel ($Manufacturer_TermID)"
+                $Values | Out-Host
+            }
+            Catch {
+                $err = $_
+                $Line | Add-Member -MemberType NoteProperty -Name Error -Value "Error setting PNP list item. Error: $err"
+                $ErrorList += $Line
+                $Line | Out-Host
+                Continue
+            }
+        }
+        else {
+            $Line | Add-Member -MemberType NoteProperty -Name Error -Value "No metadata values to set. Skipping"
             $ErrorList += $Line
             $Line | Out-Host
             Continue
