@@ -104,7 +104,7 @@ PROCESS {
             $Vehicle_TermID = ($Vehicle_TermID -split "#")[-1]
         }
         else {
-            $Vendor_TermID = $null
+            $Vehicle_TermID = $null
         }
         if ($CustomersFullPath) {
             $CustomersLabel = ($CustomersFullPath -split "\|")
