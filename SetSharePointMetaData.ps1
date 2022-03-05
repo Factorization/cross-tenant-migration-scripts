@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile
+    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "7608-write off.xlsx" } | Select-Object -First 1
 }
 PROCESS {
 
@@ -85,6 +85,10 @@ PROCESS {
                 $Line | Out-Host
                 Continue
             }
+            $Vendor_TermID = ($Vendor_TermID -split "#")[-1]
+        }
+        else {
+            $Vendor_TermID = $null
         }
         if ($VehicleFullPath) {
             $VehicleLabel = ($VehicleFullPath -split "\|")
@@ -97,6 +101,10 @@ PROCESS {
                 $Line | Out-Host
                 Continue
             }
+            $Vehicle_TermID = ($Vehicle_TermID -split "#")[-1]
+        }
+        else {
+            $Vendor_TermID = $null
         }
         if ($CustomersFullPath) {
             $CustomersLabel = ($CustomersFullPath -split "\|")
@@ -109,6 +117,10 @@ PROCESS {
                 $Line | Out-Host
                 Continue
             }
+            $Customers_TermID = ($Customers_TermID -split "#")[-1]
+        }
+        else {
+            $Customers_TermID = $null
         }
         if ($ManufacturerFullPath) {
             $ManufacturerLabel = ($ManufacturerFullPath -split "\|")
@@ -121,45 +133,19 @@ PROCESS {
                 $Line | Out-Host
                 Continue
             }
-        }
-
-        $ValuesToUpdate = @{}
-        if ($Vendor_TermID) {
-            $Vendor_TermID = ($Vendor_TermID -split "#")[-1]
-            $ValuesToUpdate["Vendor"] = $Vendor_TermID
-        }
-        else {
-            $ValuesToUpdate["Vendor"] = $null
-        }
-        if ($Vehicle_TermID) {
-            $Vehicle_TermID = ($Vehicle_TermID -split "#")[-1]
-            $ValuesToUpdate["Vehicle"] = $Vehicle_TermID
-        }
-        else {
-            $ValuesToUpdate["Vehicle"] = $null
-        }
-        if ($Customers_TermID) {
-            $Customers_TermID = ($Customers_TermID -split "#")[-1]
-            $ValuesToUpdate["Customers"] = $Customers_TermID
-        }
-        else {
-            $ValuesToUpdate["Customers"] = $null
-        }
-        if ($Manufacturer_TermID) {
             $Manufacturer_TermID = ($Manufacturer_TermID -split "#")[-1]
-            $ValuesToUpdate["Manufacturer"] = $Manufacturer_TermID
         }
         else {
-            $ValuesToUpdate["Manufacturer"] = $null
+            $Manufacturer_TermID = $null
         }
 
         try {
-            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values $ValuesToUpdate | Out-Null
-            # Write-Host "Filename: $($Line.FileName)"
-            # Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
-            # Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
-            # Write-Host "`tCustomers: $($CustomersLabel -join "|") ($Customers_TermID)"
-            # Write-Host "`tManufacturer: $($ManufacturerLabel -join "|") ($Manufacturer_TermID)"
+            Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $Vendor_TermID; "Vehicle" = $Vehicle_TermID; "Customers" = $Customers_TermID; "Manufacturer" = $Manufacturer_TermID } | Out-Null
+            Write-Host "Filename: $($Line.FileName)"
+            Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
+            Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
+            Write-Host "`tCustomers: $($CustomersLabel -join "|") ($Customers_TermID)"
+            Write-Host "`tManufacturer: $($ManufacturerLabel -join "|") ($Manufacturer_TermID)"
             # $ValuesToUpdate | Out-Host
         }
         Catch {
