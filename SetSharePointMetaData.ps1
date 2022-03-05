@@ -74,6 +74,7 @@ PROCESS {
             Continue
         }
 
+        # Vendor
         if ($VendorFullPath) {
             $VendorLabel = ($VendorFullPath -split "\|")
             $VendorSearch = (($VendorLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
@@ -90,6 +91,8 @@ PROCESS {
         else {
             $Vendor_TermID = $null
         }
+
+        # Vehicle
         if ($VehicleFullPath) {
             $VehicleLabel = ($VehicleFullPath -split "\|")
             $VehicleSearch = (($VehicleLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
@@ -106,6 +109,8 @@ PROCESS {
         else {
             $Vehicle_TermID = $null
         }
+
+        # Customers
         if ($CustomersFullPath) {
             $CustomersLabel = ($CustomersFullPath -split "\|")
             $CustomersSearch = (($CustomersLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
@@ -122,6 +127,8 @@ PROCESS {
         else {
             $Customers_TermID = $null
         }
+
+        # Manufacturer
         if ($ManufacturerFullPath) {
             $ManufacturerLabel = ($ManufacturerFullPath -split "\|")
             $ManufacturerSearch = (($ManufacturerLabel | ForEach-Object { "$_;#*|" }) -join "").TrimEnd("|")
@@ -139,6 +146,7 @@ PROCESS {
             $Manufacturer_TermID = $null
         }
 
+        
         try {
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $Vendor_TermID; "Vehicle" = $Vehicle_TermID; "Customers" = $Customers_TermID; "Manufacturer" = $Manufacturer_TermID } | Out-Null
             Write-Host "Filename: $($Line.FileName)"
