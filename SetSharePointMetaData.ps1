@@ -150,11 +150,10 @@ PROCESS {
         try {
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $Vendor_TermID; "Vehicle" = $Vehicle_TermID; "Customers" = $Customers_TermID; "Manufacturer" = $Manufacturer_TermID } | Out-Null
             Write-Host "Filename: $($Line.FileName)"
-            Write-Host "`tVendor: $($VendorLabel -join "|") ($Vendor_TermID)"
-            Write-Host "`tVehicle: $($VehicleLabel -join "|") ($Vehicle_TermID)"
-            Write-Host "`tCustomers: $($CustomersLabel -join "|") ($Customers_TermID)"
-            Write-Host "`tManufacturer: $($ManufacturerLabel -join "|") ($Manufacturer_TermID)"
-            # $ValuesToUpdate | Out-Host
+            Write-Host "`tVendor: $VendorFullPath ($Vendor_TermID)"
+            Write-Host "`tVehicle: $VehicleFullPath ($Vehicle_TermID)"
+            Write-Host "`tCustomers: $CustomersFullPath ($Customers_TermID)"
+            Write-Host "`tManufacturer: $ManufacturerFullPath ($Manufacturer_TermID)"
         }
         Catch {
             $err = $_
