@@ -29,7 +29,7 @@ BEGIN {
     $TermIds = Export-PnPTaxonomy -IncludeID
     Write-Host "DONE" -ForegroundColor Green
 
-    $CSV = Import-Csv -LiteralPath $CSVFile | Where-Object { $_.FileName -eq "7608-write off.xlsx" } | Select-Object -First 1
+    $CSV = Import-Csv -LiteralPath $CSVFile
 }
 PROCESS {
 
@@ -146,7 +146,7 @@ PROCESS {
             $Manufacturer_TermID = $null
         }
 
-        
+
         try {
             Set-PnpListItem -List $DocumentLibrary -Identity $File.Id -Values @{"Vendor" = $Vendor_TermID; "Vehicle" = $Vehicle_TermID; "Customers" = $Customers_TermID; "Manufacturer" = $Manufacturer_TermID } | Out-Null
             Write-Host "Filename: $($Line.FileName)"
