@@ -4,10 +4,6 @@ param (
     [string[]]
     $URLs,
 
-    [Parameter(Mandatory = $true)]
-    [string]
-    $LibraryName,
-
     [Parameter(Mandatory = $false)]
     [PSCredential]
     $Credential = (Get-Credential)
@@ -34,6 +30,12 @@ BEGIN {
             $GroupMembers = @()
         }
         return $GroupMembers
+    }
+
+    function GetPnPDocumentLibraries() {
+        $LibrariesToSkip = @("Documents", "Form Templates", "Site Assets", "Site Pages", "Style Library")
+        $Libraries = Get-PnPList | Where-Object { $_.BaseType -eq "DocumentLibrary" -and $_.Hidden -eq $false } | Where-Object { $_.Title -notin $LibrariesToSkip }
+        return $Libraries
     }
 
     function GetRoleAssignments($Library) {
@@ -97,18 +99,17 @@ PROCESS {
         Write-Progress -Activity "Exporting SharePoint Permissions..." -Status "Site: $URL" -PercentComplete (($i / $Total) * 100)
         $i++
         ConnectPNPOnline -URL $URL -Credential $Credential
-        $Library = Get-PnPList -Identity $LibraryName -Includes RoleAssignments
-        if (-not $Library) {
-            Write-Host " Library: $LibraryName | URL: $URL | Library doesn't exist." -ForegroundColor Red
-            continue
+        $Libraries = GetPnPDocumentLibraries
+        foreach ($Library in $Libraries) {
+            $Library = Get-PnPList -Identity $Library.Title -Includes RoleAssignments
+            $Results += GetRoleAssignments -Library $Library
         }
-        $Results += GetRoleAssignments -Library $Library
     }
 }
 END {
     if ($Results) {
         $Date = Get-Date -Format yyyy-MM-dd_HH.mm
-        $FileName = "SharePoint_Permissions_$($LibraryName)_Export_$Date.csv"
+        $FileName = "SharePoint_Permissions_Export_$Date.csv"
 
         $Results | Export-Csv -NoTypeInformation -LiteralPath $FileName
         Write-Host "File exported to: $FileName" -ForegroundColor Green
