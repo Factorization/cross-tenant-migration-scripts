@@ -22,7 +22,7 @@ BEGIN {
         }
         Catch {
             $err = $_
-            Write-Host "Failed to connect to URL $URL. Error: $err"
+            Write-Host "Failed to connect to URL $URL. Error: $err" -ForegroundColor Red
             Throw "Error"
         }
     }
@@ -49,14 +49,10 @@ BEGIN {
         $RoleAssignments = $Library.RoleAssignments
         $PermissionCollection = @()
         Foreach ($RoleAssignment in $RoleAssignments) {
-            #Get the Permission Levels assigned and Member
             Get-PnPProperty -ClientObject $RoleAssignment -Property RoleDefinitionBindings, Member
 
             $PrincipalType = $RoleAssignment.Member.PrincipalType
             $PermissionLevels = $RoleAssignment.RoleDefinitionBindings | Select-Object -ExpandProperty Name
-
-            $PermissionLevels = $PermissionLevels | Where-Object { $_ -ne "Limited Access" }
-            If (($PermissionLevels | Measure-Object | Select-Object -ExpandProperty Count) -eq 0) { Continue }
 
             If ($PrincipalType -eq "SharePointGroup") {
                 $GroupMembers = Get-PnPGroupMember -Identity $RoleAssignment.Member.LoginName
@@ -68,7 +64,7 @@ BEGIN {
                     PrincipalName = $RoleAssignment.Member.Title
                     PrincipalType = $PrincipalType
                     Permissions   = $PermissionLevels -join " | "
-                    Membership    = $GroupMembers -join " | "
+                    Membership    = $GroupMembers.Title -join " | "
                 }
             }
             elseif ($PrincipalType -eq "SecurityGroup") {
