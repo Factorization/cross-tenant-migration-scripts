@@ -17,7 +17,14 @@ BEGIN {
             Disconnect-PnPOnline
         }
         Catch {}
-        Connect-PnPOnline -Url $URL -Credentials $Credential
+        try {
+            Connect-PnPOnline -Url $URL -Credentials $Credential
+        }
+        Catch {
+            $err = $_
+            Write-Host "Failed to connect to URL $URL. Error: $err"
+            Throw "Error"
+        }
     }
 
     function GetAzureAdGroupMember ($LoginName) {
@@ -98,7 +105,12 @@ PROCESS {
     foreach ($URL in $URLs) {
         Write-Progress -Id 1 -Activity "Exporting SharePoint Permissions..." -Status "Site: $URL" -PercentComplete (($i / $Total) * 100)
         $i++
-        ConnectPNPOnline -URL $URL -Credential $Credential
+        try {
+            ConnectPNPOnline -URL $URL -Credential $Credential
+        }
+        Catch {
+            Continue
+        }
         $Libraries = GetPnPDocumentLibraries
         $SubTotal = $Libraries | Measure-Object | Select-Object -ExpandProperty Count
         $j = 0
