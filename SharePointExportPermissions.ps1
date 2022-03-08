@@ -96,14 +96,19 @@ PROCESS {
     $i = 0
     $Results = @()
     foreach ($URL in $URLs) {
-        Write-Progress -Activity "Exporting SharePoint Permissions..." -Status "Site: $URL" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Id 1 -Activity "Exporting SharePoint Permissions..." -Status "Site: $URL" -PercentComplete (($i / $Total) * 100)
         $i++
         ConnectPNPOnline -URL $URL -Credential $Credential
         $Libraries = GetPnPDocumentLibraries
+        $SubTotal = $Libraries | Measure-Object | Select-Object -ExpandProperty Count
+        $j = 0
         foreach ($Library in $Libraries) {
+            Write-Progress -Id 2 -ParentId 1 -Activity "Exporting Document Library Permissions..." -Status "Library: $($Library.Title)" -PercentComplete (($j / $SubTotal) * 100)
+            $j++
             $Library = Get-PnPList -Identity $Library.Title -Includes RoleAssignments
             $Results += GetRoleAssignments -Library $Library
         }
+        Write-Progress -Id 2 -Completed
     }
 }
 END {
