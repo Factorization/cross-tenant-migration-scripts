@@ -108,7 +108,7 @@ PROCESS {
             $Library = Get-PnPList -Identity $Library.Title -Includes RoleAssignments
             $Results += GetRoleAssignments -Library $Library
         }
-        Write-Progress -Id 2 -Completed
+        Write-Progress -Id 2 -Completed -Activity "Exporting Document Library Permissions..."
     }
 }
 END {
