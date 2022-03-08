@@ -55,7 +55,7 @@ BEGIN {
             $PermissionLevels = $RoleAssignment.RoleDefinitionBindings | Select-Object -ExpandProperty Name
 
             If ($PrincipalType -eq "SharePointGroup") {
-                $GroupMembers = Get-PnPGroupMember -Identity $RoleAssignment.Member.LoginName
+                $GroupMembers = Get-PnPGroupMember -Identity $RoleAssignment.Member.LoginName | Where-Object Email | Select-Object -ExpandProperty Email
                 if (($GroupMembers | Measure-Object | Select-Object -ExpandProperty Count) -eq 0) { continue }
 
                 $PermissionCollection += [PSCustomObject]@{
@@ -64,7 +64,7 @@ BEGIN {
                     PrincipalName = $RoleAssignment.Member.Title
                     PrincipalType = $PrincipalType
                     Permissions   = $PermissionLevels -join " | "
-                    Membership    = $GroupMembers.Title -join " | "
+                    Membership    = $GroupMembers -join " | "
                 }
             }
             elseif ($PrincipalType -eq "SecurityGroup") {
