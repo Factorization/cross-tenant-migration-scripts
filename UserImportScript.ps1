@@ -488,8 +488,6 @@ BEGIN {
                 Path              = $OU
                 SamAccountName    = $NewSamAccountName
                 AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
-                Company           = $Company
-                Department        = $Department
             }
             if ($MailboxType -eq "UserMailbox") {
                 $Attributes.Enabled = $true
@@ -503,6 +501,12 @@ BEGIN {
             }
             if ($LastName) {
                 $Attributes.SurName = "$LastName"
+            }
+            if ($Company){
+                $Attributes.Company = "$Company"
+            }
+            if($Department){
+                $Attributes.Department = "$Department"
             }
 
             WriteLog "Creating user with attributes $($Attributes|Out-String)."
