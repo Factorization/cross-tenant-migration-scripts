@@ -56,16 +56,16 @@ BEGIN {
             "CCAP" = "OU=Users,OU=CCAP,OU=AGENCY,DC=dca,DC=ca,DC=gov"
         }
         "SharedMailbox"    = @{
-            "BCSH" = ""
-            "CCAP" = ""
+            "BCSH" = "OU=Users,OU=BCSH,OU=AGENCY,DC=dca,DC=ca,DC=gov"
+            "CCAP" = "OU=Users,OU=CCAP,OU=AGENCY,DC=dca,DC=ca,DC=gov"
         }
         "EquipmentMailbox" = @{
-            "BCSH" = ""
-            "CCAP" = ""
+            "BCSH" = "OU=Users,OU=BCSH,OU=AGENCY,DC=dca,DC=ca,DC=gov"
+            "CCAP" = "OU=Users,OU=CCAP,OU=AGENCY,DC=dca,DC=ca,DC=gov"
         }
         "RoomMailbox"      = @{
-            "BCSH" = ""
-            "CCAP" = ""
+            "BCSH" = "OU=Users,OU=BCSH,OU=AGENCY,DC=dca,DC=ca,DC=gov"
+            "CCAP" = "OU=Users,OU=CCAP,OU=AGENCY,DC=dca,DC=ca,DC=gov"
         }
     }
 
