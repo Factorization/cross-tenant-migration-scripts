@@ -76,6 +76,8 @@ BEGIN {
         'AcceptMessagesOnlyFromSendersOrMembers',
         'Alias',
         'ArchiveGuid',
+        'ArchiveItemCount',
+        'ArchiveSize',
         'City',
         'Company',
         'Department',
