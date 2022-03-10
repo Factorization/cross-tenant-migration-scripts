@@ -49,30 +49,23 @@ BEGIN {
     $MasterRoomMailboxFileOutput = Join-Path $Root "Master_Room_Mailbox_File_$DATE.csv"
     $ErrorFileOutput = Join-Path $Root "Error_File_$DATE.csv"
 
-    $COMPANY = "California Department of Cannabis Control"
-    $DEPARTMENT = "DCC"
-
     # Map of user objects to specific OUs
     $OU_MAP = @{
         "UserMailbox"      = @{
-            "DCA"  = "OU=BCC,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=CDFA,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=CDPH,OU=Standard,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "BCSH" = "OU=Users,OU=BCSH,OU=AGENCY,DC=dca,DC=ca,DC=gov"
+            "CCAP" = "OU=Users,OU=CCAP,OU=AGENCY,DC=dca,DC=ca,DC=gov"
         }
         "SharedMailbox"    = @{
-            "DCA"  = "OU=BCC,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=CDFA,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=CDPH,OU=Shared-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "BCSH" = ""
+            "CCAP" = ""
         }
         "EquipmentMailbox" = @{
-            "DCA"  = "OU=BCC,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=CDFA,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=CDPH,OU=Equipment-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "BCSH" = ""
+            "CCAP" = ""
         }
         "RoomMailbox"      = @{
-            "DCA"  = "OU=BCC,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDFA" = "OU=CDFA,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
-            "CDPH" = "OU=CDPH,OU=Room-Mailbox,OU=Accounts,OU=DCC,DC=ad,DC=cannabis,DC=ca,DC=gov"
+            "BCSH" = ""
+            "CCAP" = ""
         }
     }
 
@@ -210,7 +203,6 @@ BEGIN {
         WriteLog "$Name Master file '$File' incorrect CSV columns. Exiting..." -isError
         Exit
     }
-
     function ImportInputFiles() {
         $Results = @()
         foreach ($File in $InputFiles) {
@@ -428,13 +420,13 @@ BEGIN {
             }
             elseif ($Name -eq "PrimarySmtpAddress") {
                 # $NewValue = $ADUser.UserPrincipalName
-                $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@cannabis.ca.gov"
+                $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@dca.ca.gov"
             }
             elseif ($Name -eq "Company") {
-                $NewValue = $COMPANY
+                $NewValue = $Data.Company
             }
             elseif ($Name -eq "Department") {
-                $NewValue = $DEPARTMENT
+                $NewValue = $Date.Department
             }
             elseif ($Name -eq "msExchHideFromAddressLists") {
                 $NewValue = "TRUE"
@@ -447,7 +439,7 @@ BEGIN {
                 $x500s = @("x500:$($Data.LegacyExchangeDN)")
                 $x500s += $Data.EmailAddresses -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
                 $x500s += $ADUser.ProxyAddresses | Where-Object { $_ -match "^x500" }
-                $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@cannabis\.ca\.gov$|@dcco365\.mail\.onmicrosoft\.com$|@dcco365\.onmicrosoft\.com$" }
+                $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@dca\.ca\.gov$|@dcao365\.mail\.onmicrosoft\.com$|@dcao365\.onmicrosoft\.com$" }
                 if ($OtherAddresses) {
                     $x500s += @($OtherAddresses)
                 }
@@ -485,6 +477,8 @@ BEGIN {
             $Password = GetPassword
             $FirstName = $Data.FirstName
             $LastName = $Data.LastName
+            $Company = $Date.Company
+            $Department = $Date.Department
             $Attributes = @{
                 Name              = $NewDisplayName
                 DisplayName       = $NewDisplayName
@@ -492,8 +486,8 @@ BEGIN {
                 Path              = $OU
                 SamAccountName    = $NewSamAccountName
                 AccountPassword   = $(ConvertTo-SecureString -AsPlainText "$Password" -Force)
-                Company           = $COMPANY
-                Department        = $DEPARTMENT
+                Company           = $Company
+                Department        = $Department
             }
             if ($MailboxType -eq "UserMailbox") {
                 $Attributes.Enabled = $true
@@ -539,18 +533,15 @@ BEGIN {
         if (-not $Prefix) {
             Throw "UPN prefix error for '$OldUPN'."
         }
-        return $Prefix + "@cannabis.ca.gov"
+        return $Prefix + "@dca.ca.gov"
     }
     function GetOU($OldUPN, $MailboxType) {
         $Suffix = ($OldUPN -split "@")[1]
-        if ($Suffix -match "^dca\.ca\.gov$|^dcao365\.onmicrosoft\.com$") {
-            $Location = "DCA"
+        if ($Suffix -match "^bcsh\.ca\.gov$|^cabcsh\.onmicrosoft\.com$") {
+            $Location = "BCSH"
         }
-        elseif ($Suffix -eq "cdph.ca.gov") {
-            $Location = "CDPH"
-        }
-        elseif ($Suffix -eq "cdfa.ca.gov") {
-            $Location = "CDFA"
+        elseif ($Suffix -eq "ccap.ca.gov") {
+            $Location = "CCAP"
         }
         else {
             Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
@@ -563,18 +554,6 @@ BEGIN {
     }
     function GetDisplayName($OldDisplayName) {
         $NewDisplayName = $OldDisplayName
-        if ($NewDisplayName -like "*@*") {
-            $NewDisplayName = ($NewDisplayName -split "@")[0] + "@Cannabis"
-        }
-        if ($NewDisplayName -like "*DCA*") {
-            $NewDisplayName = $NewDisplayName -replace "DCA", "DCC"
-        }
-        if ($NewDisplayName -like "*CDFA*") {
-            $NewDisplayName = $NewDisplayName -replace "CDFA", "DCC"
-        }
-        if ($NewDisplayName -like "*CDPH*") {
-            $NewDisplayName = $NewDisplayName -replace "CDPH", "DCC"
-        }
         if (-not $NewDisplayName) {
             Throw "Failed to parse display name '$OldDisplayName'."
         }
