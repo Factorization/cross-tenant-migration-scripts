@@ -84,6 +84,11 @@ Param(
 	[switch]
 	$IncludeMailboxPermissions,
 
+	# AD Credential
+	[Parameter(Mandatory = $false)]
+	[PSCredential]
+	$ADCredential,
+
 	# Skip AD User info
 	[Parameter(Mandatory = $False)]
 	[switch]
@@ -193,7 +198,12 @@ BEGIN {
 		if ( -not $SkipAdInfo) {
 			if ($mailbox.IsDirSynced) {
 				Write-Verbose "Getting AD user info..."
-				$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties *
+				if ($ADCredential) {
+					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties * -Credential $ADCredential
+				}
+				else {
+					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties *
+				}
 				Write-Verbose "Exporting AD user info to XML..."
 				ExportXML -Object $ADUser -Path $GetADUserOutput -Email $SourceEmailAddress
 			}
