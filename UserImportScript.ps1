@@ -138,7 +138,8 @@ BEGIN {
     # Required properties for master files
     $Required_Master_File_Properties = @(
         "OldUPN",
-        "UPN",
+        "NewUPN",
+        "NewSamAccountName",
         "FirstName",
         "LastName",
         "Password",
