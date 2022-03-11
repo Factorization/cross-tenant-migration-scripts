@@ -289,7 +289,7 @@ BEGIN {
         If (-not $MasterFile) {
             return
         }
-        $NewUPN = $MasterFile | Where-Object { $_.OldUPN -eq "$OldUPN" } | Select-Object -ExpandProperty UPN
+        $NewUPN = $MasterFile | Where-Object { $_.OldUPN -eq "$OldUPN" } | Select-Object -ExpandProperty NewUPN
         return $NewUPN
     }
     function RenameADUser($NewUPN) {
