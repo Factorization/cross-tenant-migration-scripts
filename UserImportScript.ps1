@@ -476,7 +476,7 @@ BEGIN {
                 }
             }
             Catch {}
-            $NewSamAccountName = $date.SamAccountName
+            $NewSamAccountName = $Data.SamAccountName
             if ($NewSamAccountName.Length -gt 20) {
                 $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
             }
@@ -485,8 +485,8 @@ BEGIN {
             $Password = GetPassword
             $FirstName = $Data.FirstName
             $LastName = $Data.LastName
-            $Company = $Date.Company
-            $Department = $Date.Department
+            $Company = $Data.Company
+            $Department = $Data.Department
             $Attributes = @{
                 Name              = $NewDisplayName
                 DisplayName       = $NewDisplayName
