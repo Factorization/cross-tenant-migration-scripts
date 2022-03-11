@@ -421,8 +421,8 @@ BEGIN {
                 $NewValue = GetDisplayName -OldDisplayName $Data.DisplayName
             }
             elseif ($Name -eq "PrimarySmtpAddress") {
-                # $NewValue = $ADUser.UserPrincipalName
-                $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@dca.ca.gov"
+                $NewValue = $ADUser.UserPrincipalName
+                # $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@dca.ca.gov"
             }
             elseif ($Name -eq "Company") {
                 $NewValue = $Data.Company
@@ -469,10 +469,11 @@ BEGIN {
             $OldUPN = $Data.UserPrincipalName
             $MailboxType = $Data.RecipientTypeDetails
             $NewUPN = GetUPN -OldUPN $OldUPN
-            $NewSamAccountName = ($NewUPN -split "@")[0]
+            $NewSamAccountName = $date.SamAccountName
             if ($NewSamAccountName.Length -gt 20) {
-                $random_suffix = ((New-Guid).Guid -split "-")[1]
-                $NewSamAccountName = $NewSamAccountName.Substring(0, 15) + "-" + $random_suffix
+                # $random_suffix = ((New-Guid).Guid -split "-")[1]
+                # $NewSamAccountName = $NewSamAccountName.Substring(0, 15) + "-" + $random_suffix
+                $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
             }
             $OU = GetOU -OldUPN $OldUPN -MailboxType $MailboxType
             $NewDisplayName = GetDisplayName -OldDisplayName $Data.DisplayName
@@ -494,7 +495,16 @@ BEGIN {
                 $Attributes.ChangePasswordAtLogon = $true
             }
             else {
+                $Location = GetLocation -OldUPN $OldUPN
+                if (-not $NewSamAccountName.StartsWith($Location)) {
+                    $NewSamAccountName = $Location + '.' + $NewSamAccountName
+                }
+                if (-not $NewUPN.StartsWith($Location)) {
+                    $NewUPN = $Location + '.' + $NewUPN
+                }
                 $Attributes.Enabled = $false
+                $Attributes.SamAccountName = $NewSamAccountName
+                $Attributes.UserPrincipalName = $NewUPN
             }
             if ($FirstName) {
                 $Attributes.GivenName = "$FirstName"
@@ -502,10 +512,10 @@ BEGIN {
             if ($LastName) {
                 $Attributes.SurName = "$LastName"
             }
-            if ($Company){
+            if ($Company) {
                 $Attributes.Company = "$Company"
             }
-            if($Department){
+            if ($Department) {
                 $Attributes.Department = "$Department"
             }
 
@@ -513,12 +523,13 @@ BEGIN {
             New-ADUser @Attributes -Server $Server -Credential $Credential
 
             $Result = [PSCustomObject]@{
-                OldUPN      = $OldUPN
-                UPN         = $NewUPN
-                FirstName   = $FirstName
-                LastName    = $LastName
-                Password    = $Password
-                CreatedDate = $DATE
+                OldUPN            = $OldUPN
+                NewUPN            = $NewUPN
+                NewSamAccountName = $NewSamAccountName
+                FirstName         = $FirstName
+                LastName          = $LastName
+                Password          = $Password
+                CreatedDate       = $DATE
             }
             WriteLog "Writing master file..."
             WriteMasterFile -Data $Result -MailboxType $MailboxType
@@ -542,6 +553,24 @@ BEGIN {
         return $Prefix + "@dca.ca.gov"
     }
     function GetOU($OldUPN, $MailboxType) {
+        # $Suffix = ($OldUPN -split "@")[1]
+        # if ($Suffix -match "^bcsh\.ca\.gov$|^cabcsh\.onmicrosoft\.com$") {
+        #     $Location = "BCSH"
+        # }
+        # elseif ($Suffix -eq "ccap.ca.gov") {
+        #     $Location = "CCAP"
+        # }
+        # else {
+        #     Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
+        # }
+        $Location = GetLocation -OldUPN $OldUPN
+        $OU = $OU_MAP.$MailboxType.$Location
+        if (-not $OU) {
+            Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
+        }
+        return $OU
+    }
+    function GetLocation($OldUPN) {
         $Suffix = ($OldUPN -split "@")[1]
         if ($Suffix -match "^bcsh\.ca\.gov$|^cabcsh\.onmicrosoft\.com$") {
             $Location = "BCSH"
@@ -552,11 +581,7 @@ BEGIN {
         else {
             Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
         }
-        $OU = $OU_MAP.$MailboxType.$Location
-        if (-not $OU) {
-            Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
-        }
-        return $OU
+        return $Location
     }
     function GetDisplayName($OldDisplayName) {
         $NewDisplayName = $OldDisplayName
