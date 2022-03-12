@@ -52,7 +52,7 @@ PROCESS {
         Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | Duplicates: $DuplicateCount | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
         $i++
 
-        $MailboxType = $Data.RecipientTypeDetails
+        $MailboxType = $User.RecipientTypeDetails
         $UPN = GetUPN -OldUPN $User.UserPrincipalName
         $SamAccountName = $User.SamAccountName
         if (-not $SamAccountName) {
