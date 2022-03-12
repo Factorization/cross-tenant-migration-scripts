@@ -507,9 +507,16 @@ BEGIN {
                 $Location = GetLocation -OldUPN $OldUPN
                 if (-not $NewUPN.StartsWith($Location)) {
                     $NewUPN = $Location + '.' + $NewUPN
+                    $Attributes.UserPrincipalName = $NewUPN
+                }
+                if (-not $NewSamAccountName.StartsWith($Location)){
+                    $NewSamAccountName = $Location + "." +$NewSamAccountName
+                    if ($NewSamAccountName.Length -gt 20) {
+                        $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
+                    }
+                    $Attributes.SamAccountName = $NewSamAccountName
                 }
                 $Attributes.Enabled = $false
-                $Attributes.UserPrincipalName = $NewUPN
             }
             if ($FirstName) {
                 $Attributes.GivenName = "$FirstName"
