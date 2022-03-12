@@ -43,7 +43,12 @@ PROCESS {
     $Duplicate_Mail = @()
     $Duplicate_ProxyAddresses = @()
 
+    $Total = $Export | Measure-Object | Select-Object -ExpandProperty Count
+    $i = 0
     foreach ($User in $Export) {
+        Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
+        $i++
+
         $MailboxType = $Data.RecipientTypeDetails
         $UPN = GetUPN -OldUPN $User.UserPrincipalName
         $SamAccountName = $User.SamAccountName
