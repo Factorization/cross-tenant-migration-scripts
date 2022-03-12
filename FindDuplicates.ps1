@@ -10,7 +10,7 @@ param (
 )
 BEGIN {
     $ErrorActionPreference = "Stop"
-    Set-StrictMode -Version Latest
+    Set-StrictMode -Version 1.0
     function GetUPN($OldUPN, $Number = $null) {
         $Prefix = ($OldUPN -split "@")[0]
         if (-not $Prefix) {
