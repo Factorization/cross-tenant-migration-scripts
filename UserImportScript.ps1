@@ -478,6 +478,9 @@ BEGIN {
             }
             Catch {}
             $NewSamAccountName = $Data.SamAccountName
+            if (-not $NewSamAccountName){
+                $NewSamAccountName = ($NewUPN -split '@')[0]
+            }
             if ($NewSamAccountName.Length -gt 20) {
                 $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
             }
