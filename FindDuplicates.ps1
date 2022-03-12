@@ -33,8 +33,10 @@ BEGIN {
         }
         return $Location
     }
-
+    Write-Host "Getting AD users..." -ForegroundColor Cyan
     $TargetADUsers = Get-Aduser -Filter * -Server $Domain -Properties CanonicalName, Mail, ProxyAddresses | Select-Object *
+
+    Write-Host "Importing CSV..." -ForegroundColor Cyan
     $Export = Import-Csv $ExportCSV
 }
 PROCESS {
@@ -42,11 +44,12 @@ PROCESS {
     $Duplicate_SamAccountName = @()
     $Duplicate_Mail = @()
     $Duplicate_ProxyAddresses = @()
+    $DuplicateCount = 0
 
     $Total = $Export | Measure-Object | Select-Object -ExpandProperty Count
     $i = 0
     foreach ($User in $Export) {
-        Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | Duplicated: $DuplicateCount | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
         $i++
 
         $MailboxType = $Data.RecipientTypeDetails
@@ -74,6 +77,7 @@ PROCESS {
         # UPN
         $Matching_DCA_User = $TargetADUsers | Where-Object { $_.UserPrincipalName -eq $UPN }
         If ($Matching_DCA_User) {
+            $DuplicateCount++
             $Duplicate_UPNs += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_UPN          = $User.UserPrincipalName
@@ -84,6 +88,7 @@ PROCESS {
         # SamAccountName
         $Matching_DCA_User = $TargetADUsers | Where-Object { $_.SamAccountName -eq $SamAccountName }
         If ($Matching_DCA_User) {
+            $DuplicateCount++
             $Duplicate_SamAccountName += [PSCustomObject]@{
                 Name                = $User.Name
                 BCSH_SamAccountName = $User.SamAccountName
@@ -94,6 +99,7 @@ PROCESS {
         # Mail
         $Matching_DCA_User = $TargetADUsers | Where-Object { $_.mail -eq $UPN }
         If ($Matching_DCA_User) {
+            $DuplicateCount++
             $Duplicate_Mail += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_Mail         = $User.UserPrincipalName
@@ -104,6 +110,7 @@ PROCESS {
         # ProxyAddresses
         $Matching_DCA_User = $TargetADUsers | Where-Object { $_.ProxyAddresses -match $UPN }
         If ($Matching_DCA_User) {
+            $DuplicateCount++
             $Duplicate_ProxyAddresses += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_UPN          = $User.UserPrincipalName
