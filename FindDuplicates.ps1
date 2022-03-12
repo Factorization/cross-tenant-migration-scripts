@@ -85,7 +85,7 @@ PROCESS {
             $Duplicate_UPNs += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_UPN          = $User.UserPrincipalName
-                Matching_DCA_User = ($Matching_DCA_User -split "/" | Select-Object -Skip 1) -join "/"
+                Matching_DCA_User = ($Matching_DCA_User.CanonicalName -split "/" | Select-Object -Skip 1) -join "/"
             }
         }
 
@@ -96,7 +96,7 @@ PROCESS {
             $Duplicate_SamAccountName += [PSCustomObject]@{
                 Name                = $User.Name
                 BCSH_SamAccountName = $User.SamAccountName
-                Matching_DCA_User   = ($Matching_DCA_User -split "/" | Select-Object -Skip 1) -join "/"
+                Matching_DCA_User   = ($Matching_DCA_User.CanonicalName -split "/" | Select-Object -Skip 1) -join "/"
             }
         }
 
@@ -107,7 +107,7 @@ PROCESS {
             $Duplicate_Mail += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_Mail         = $User.UserPrincipalName
-                Matching_DCA_User = ($Matching_DCA_User -split "/" | Select-Object -Skip 1) -join "/"
+                Matching_DCA_User = ($Matching_DCA_User.CanonicalName -split "/" | Select-Object -Skip 1) -join "/"
             }
         }
 
@@ -118,7 +118,7 @@ PROCESS {
             $Duplicate_ProxyAddresses += [PSCustomObject]@{
                 Name              = $User.Name
                 BCSH_UPN          = $User.UserPrincipalName
-                Matching_DCA_User = ($Matching_DCA_User -split "/" | Select-Object -Skip 1) -join "/"
+                Matching_DCA_User = ($Matching_DCA_User.CanonicalName -split "/" | Select-Object -Skip 1) -join "/"
             }
         }
     }
