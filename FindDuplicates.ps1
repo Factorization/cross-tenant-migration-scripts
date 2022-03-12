@@ -112,7 +112,7 @@ PROCESS {
         }
 
         # ProxyAddresses
-        $Matching_DCA_User = $TargetADUsers | Where-Object { $_.ProxyAddresses -match $UPN }
+        $Matching_DCA_User = $TargetADUsers | Where-Object { $_.ProxyAddresses -match "smtp:$UPN" }
         If ($Matching_DCA_User) {
             $DuplicateCount++
             $Duplicate_ProxyAddresses += [PSCustomObject]@{
