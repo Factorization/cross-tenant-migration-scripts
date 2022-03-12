@@ -58,9 +58,7 @@ PROCESS {
         if (-not $SamAccountName) {
             $SamAccountName = ($UPN -split '@')[0]
         }
-        if ($SamAccountName.Length -gt 20) {
-            $SamAccountName = $SamAccountName.Substring(0, 20)
-        }
+
         if ($MailboxType -ne "UserMailbox") {
             $Location = GetLocation -OldUPN $User.UserPrincipalName
             if (-not $UPN.StartsWith($Location)) {
@@ -68,11 +66,16 @@ PROCESS {
             }
             if (-not $SamAccountName.StartsWith($Location)) {
                 $SamAccountName = $Location + "." + $SamAccountName
-                if ($SamAccountName.Length -gt 20) {
-                    $SamAccountName = $SamAccountName.Substring(0, 20)
-                }
             }
         }
+
+        if ($SamAccountName.Length -gt 20) {
+            $SamAccountName = $SamAccountName.Substring(0, 20)
+        }
+
+        Write-Verbose "Finding duplicates for:"
+        Write-Verbose "`tUPN: $UPN"
+        Write-Verbose "`tSamAccountName: $SamAccountName"
 
         # UPN
         $Matching_DCA_User = $TargetADUsers | Where-Object { $_.UserPrincipalName -eq $UPN }
