@@ -49,7 +49,7 @@ PROCESS {
     $Total = $Export | Measure-Object | Select-Object -ExpandProperty Count
     $i = 0
     foreach ($User in $Export) {
-        Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | Duplicated: $DuplicateCount | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Activity "Finding duplicate users..." -Status "Users: [$i / $Total] | Duplicates: $DuplicateCount | User: $($User.UserPrincipalName)" -PercentComplete (($i / $Total) * 100)
         $i++
 
         $MailboxType = $Data.RecipientTypeDetails
