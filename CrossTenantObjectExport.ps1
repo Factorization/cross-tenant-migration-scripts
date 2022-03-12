@@ -198,11 +198,12 @@ BEGIN {
 		if ( -not $SkipAdInfo) {
 			if ($mailbox.IsDirSynced) {
 				Write-Verbose "Getting AD user info..."
+				$Escaped_UPN = $Mailbox.UserPrincipalName -replace "'", "''"
 				if ($ADCredential) {
-					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties * -Credential $ADCredential
+					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Escaped_UPN)'" -Server $DomainName -Properties * -Credential $ADCredential
 				}
 				else {
-					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Mailbox.UserPrincipalName)'" -Server $DomainName -Properties *
+					$ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$($Escaped_UPN)'" -Server $DomainName -Properties *
 				}
 				Write-Verbose "Exporting AD user info to XML..."
 				ExportXML -Object $ADUser -Path $GetADUserOutput -Email $SourceEmailAddress
@@ -486,6 +487,7 @@ PROCESS {
 				$CSV_Results += ExportUserInfo -Email $SourceEmailAddress
 			}
 			Catch {
+				$err = $_
 				Write-Verbose "Failed to export user $SourceEmailAddress"
 				$ErrObject = [PSCustomObject]@{
 					"Email"                = $SourceEmailAddress
