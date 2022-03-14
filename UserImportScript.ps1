@@ -472,17 +472,19 @@ BEGIN {
             $NewUPN = GetUPN -OldUPN $OldUPN
             try {
                 $ADUser = GetADUser -NewUPN $NewUPN
-                if ($ADUser) {
-                    $R = Read-Host "User $NewUPN already exists, but is not in the master file. Would you like to create the user with a '1' in the UPN? [y|N]"
-                    if ($R -eq "y") {
-                        $NewUPN = GetUPN -OldUPN $OldUPN -Number "1"
-                    }
-                    else{
-                        Throw "Duplicate user $NewUPN"
-                    }
+            }
+            Catch {
+                $ADUser = $null
+            }
+            if ($ADUser) {
+                $R = Read-Host "User $NewUPN already exists, but is not in the master file. Would you like to create the user with a '1' in the UPN? [y|N]"
+                if ($R -eq "y") {
+                    $NewUPN = GetUPN -OldUPN $OldUPN -Number "1"
+                }
+                else{
+                    Throw "Duplicate user $NewUPN."
                 }
             }
-            Catch {}
             $NewSamAccountName = $Data.SamAccountName
             if (-not $NewSamAccountName){
                 $NewSamAccountName = ($NewUPN -split '@')[0]
