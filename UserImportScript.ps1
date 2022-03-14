@@ -473,7 +473,13 @@ BEGIN {
             try {
                 $ADUser = GetADUser -NewUPN $NewUPN
                 if ($ADUser) {
-                    $NewUPN = GetUPN -OldUPN $OldUPN -Number "1"
+                    $R = Read-Host "User $NewUPN already exists, but is not in the master file. Would you like to create the user with a '1' in the UPN? [y|N]"
+                    if ($R -eq "y") {
+                        $NewUPN = GetUPN -OldUPN $OldUPN -Number "1"
+                    }
+                    else{
+                        Throw "Duplicate user $NewUPN"
+                    }
                 }
             }
             Catch {}
@@ -602,7 +608,8 @@ BEGIN {
     }
     function GetADUser($NewUPN) {
         Try {
-            $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$NewUPN'" -Server $Server -Credential $Credential -Properties *
+            $TempUPN = $NewUPN -replace "'", "''"
+            $ADUser = Get-ADUser -Filter "UserPrincipalName -eq '$TempUPN'" -Server $Server -Credential $Credential -Properties *
             if (-not $ADUser) {
                 throw "Failed to find AD User with UPN '$NewUPN'"
             }
