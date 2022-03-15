@@ -470,6 +470,13 @@ BEGIN {
             $OldUPN = $Data.UserPrincipalName
             $MailboxType = $Data.RecipientTypeDetails
             $NewUPN = GetUPN -OldUPN $OldUPN
+            $NewSamAccountName = $Data.SamAccountName
+            if (-not $NewSamAccountName){
+                $NewSamAccountName = ($NewUPN -split '@')[0]
+            }
+            if ($NewSamAccountName.Length -gt 20) {
+                $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
+            }
             if($MailboxType -ne "UserMailbox"){
                 $Location = GetLocation -OldUPN $OldUPN
                 if (-not $NewUPN.StartsWith($Location)) {
@@ -496,13 +503,6 @@ BEGIN {
                 else{
                     Throw "Duplicate user $NewUPN."
                 }
-            }
-            $NewSamAccountName = $Data.SamAccountName
-            if (-not $NewSamAccountName){
-                $NewSamAccountName = ($NewUPN -split '@')[0]
-            }
-            if ($NewSamAccountName.Length -gt 20) {
-                $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
             }
             $OU = GetOU -OldUPN $OldUPN -MailboxType $MailboxType
             $NewDisplayName = GetDisplayName -OldDisplayName $Data.DisplayName
