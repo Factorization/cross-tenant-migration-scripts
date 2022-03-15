@@ -470,6 +470,18 @@ BEGIN {
             $OldUPN = $Data.UserPrincipalName
             $MailboxType = $Data.RecipientTypeDetails
             $NewUPN = GetUPN -OldUPN $OldUPN
+            if($MailboxType -ne "UserMailbox"){
+                $Location = GetLocation -OldUPN $OldUPN
+                if (-not $NewUPN.StartsWith($Location)) {
+                    $NewUPN = $Location + '.' + $NewUPN
+                }
+                if (-not $NewSamAccountName.StartsWith($Location)){
+                    $NewSamAccountName = $Location + "." +$NewSamAccountName
+                    if ($NewSamAccountName.Length -gt 20) {
+                        $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
+                    }
+                }
+            }
             try {
                 $ADUser = GetADUser -NewUPN $NewUPN
             }
@@ -512,18 +524,6 @@ BEGIN {
                 $Attributes.ChangePasswordAtLogon = $true
             }
             else {
-                $Location = GetLocation -OldUPN $OldUPN
-                if (-not $NewUPN.StartsWith($Location)) {
-                    $NewUPN = $Location + '.' + $NewUPN
-                    $Attributes.UserPrincipalName = $NewUPN
-                }
-                if (-not $NewSamAccountName.StartsWith($Location)){
-                    $NewSamAccountName = $Location + "." +$NewSamAccountName
-                    if ($NewSamAccountName.Length -gt 20) {
-                        $NewSamAccountName = $NewSamAccountName.Substring(0, 20)
-                    }
-                    $Attributes.SamAccountName = $NewSamAccountName
-                }
                 $Attributes.Enabled = $false
             }
             if ($FirstName) {
