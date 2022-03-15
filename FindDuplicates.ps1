@@ -29,6 +29,9 @@ BEGIN {
         elseif ($Suffix -eq "ccap.ca.gov") {
             $Location = "CCAP"
         }
+        elseif($Suffix -eq "abcappeals.ca.gov"){
+            $Location = "ABCAB"
+        }
         else {
             Throw "Failed to parse OU from old UPN for '$OldUPN', mailbox type '$MailboxType'."
         }
