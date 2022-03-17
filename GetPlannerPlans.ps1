@@ -6,6 +6,7 @@ param (
 )
 Begin {
     $ErrorActionPreference = "Stop"
+    Write-Host "Getting unified groups..." -ForegroundColor Cyan
     $UnifiedGroups = Get-UnifiedGroup -ResultSize unlimited
 }
 PROCESS {
