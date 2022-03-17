@@ -28,8 +28,8 @@ PROCESS {
         $SharePointSiteUrl = $Group.SharePointSiteUrl
         $SPOSite = Get-SPOSite $SharePointSiteUrl
 
-        $GroupOwners = Get-UnifiedGroupLinks $GroupName -LinkType Owner | Select-Object -ExpandProperty PrimarySmtpAddress
-        $GroupMembers = Get-UnifiedGroupLinks $GroupName -LinkType Member | Select-Object -ExpandProperty PrimarySmtpAddress
+        $GroupOwners = Get-UnifiedGroupLinks $GroupName -LinkType Owner | Select-Object -ExpandProperty WindowsLiveID
+        $GroupMembers = Get-UnifiedGroupLinks $GroupName -LinkType Member | Select-Object -ExpandProperty WindowsLiveID
         foreach ($Plan in $Planners) {
             $Results += [PSCustomObject]@{
                 GroupName              = $GroupDisplayName
