@@ -14,7 +14,7 @@ PROCESS {
     $i = 0
     $Results = @()
     foreach ($Group in $UnifiedGroups) {
-        Write-Progress -Activity "Getting planner plans..." -Status "Group: [$i / $Total] | Planners Found: $($Results.Count) | Group: $($Group.DisplayName)" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Activity "Getting planner plans..." -Status "Group: [$i / $Total] | Planners Found: $($Results | Measure-Object | Select-Object -ExpandProperty Count) | Group: $($Group.DisplayName)" -PercentComplete (($i / $Total) * 100)
         $i++
 
         $GroupDisplayName = $Group.DisplayName
