@@ -23,6 +23,8 @@ PROCESS {
             $MemberCount = "n/a"
             $Owner = $Site.Owner
             $HasPlanner = $false
+            $GroupObjectID = "n/a"
+            $GroupCreatedDate = "n/a"
         }
         else {
             $MemberCount = Get-UnifiedGroupLinks -Identity $GroupObjectID -LinkType Member | Measure-Object | Select-Object -ExpandProperty Count
@@ -34,19 +36,22 @@ PROCESS {
             else {
                 $HasPlanner = $false
             }
+            $GroupCreatedDate = Get-UnifiedGroup $GroupObjectID | Select-Object -ExpandProperty WhenCreated
         }
         $IsTeamsConnected = $Site.IsTeamsConnected
 
         $Results += [PSCustomObject]@{
-            Title                  = $Title
-            "Remove Don't Migrate" = $null
-            Org                    = $null
-            SizeMB                 = $SizeMb
-            Template               = $Template
-            "Is Teams Connected"   = $IsTeamsConnected
-            "Has Planner"          = $HasPlanner
-            "Member Count"         = $MemberCount
-            Owner                  = $Owner -join " | "
+            Title                   = $Title
+            "Remove Don't Migrate"  = $null
+            Org                     = $null
+            "Last Content Modified" = $Site.LastContentModifiedDate
+            "Created Date"          = $GroupCreatedDate
+            SizeMB                  = $SizeMb
+            Template                = $Template
+            "Is Teams Connected"    = $IsTeamsConnected
+            "Has Planner"           = $HasPlanner
+            "Member Count"          = $MemberCount
+            Owner                   = $Owner -join " | "
         }
     }
 }
