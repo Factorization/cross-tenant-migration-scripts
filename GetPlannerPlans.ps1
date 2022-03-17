@@ -32,23 +32,23 @@ PROCESS {
         $GroupMembers = Get-UnifiedGroupLinks $GroupName -LinkType Member | Select-Object -ExpandProperty WindowsLiveID
         foreach ($Plan in $Planners) {
             $Results += [PSCustomObject]@{
-                GroupName              = $GroupDisplayName
-                PlanTitle              = $Plan.Title
-                PlanCreatedDate        = $Plan.CreatedDateTime
-                PlanOwnerGroup         = $Plan.Owner
-                PlanCreatedBy          = $Plan.CreatedBy.User.UserPrincipalName
-                GroupObjectID          = $GroupObjectID
-                GroupSharePointSiteUrl = $SharePointSiteUrl
-                GroupEmailAddress      = $Group.PrimarySmtpAddress
-                GroupIsTeamsConnected  = $SPOSite.IsTeamsConnected
-                GroupOwners            = $GroupOwners -join " | "
-                GroupMembers           = $GroupMembers -join " | "
+                "Group Name"                = $GroupDisplayName
+                "Plan Title"                = $Plan.Title
+                "Plan Created Date"         = $Plan.CreatedDateTime
+                # "Plan Owner Group"         = $Plan.Owner
+                "Plan Created By"           = $Plan.CreatedBy.User.UserPrincipalName
+                "Group Object ID"           = $GroupObjectID
+                "Group SharePoint Site URL" = $SharePointSiteUrl
+                "Group Email Address"       = $Group.PrimarySmtpAddress
+                "Group Is Teams Connected"  = $SPOSite.IsTeamsConnected
+                "Group Owners"              = $GroupOwners -join " | "
+                "Group Members"             = $GroupMembers -join " | "
             }
         }
     }
 }
 END {
-    if($Results){
+    if ($Results) {
         $Results | Export-Excel -AutoSize -AutoFilter -FreezeTopRow -Path $OutputFile
     }
     Write-Host "File saved to: $OutputFile" -ForegroundColor Green
