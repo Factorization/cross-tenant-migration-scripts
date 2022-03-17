@@ -31,7 +31,7 @@ PROCESS {
         $GroupOwners = Get-UnifiedGroupLinks $GroupName -LinkType Owner | Select-Object -ExpandProperty PrimarySmtpAddress
         $GroupMembers = Get-UnifiedGroupLinks $GroupName -LinkType Member | Select-Object -ExpandProperty PrimarySmtpAddress
         foreach ($Plan in $Planners) {
-            $Results = [PSCustomObject]@{
+            $Results += [PSCustomObject]@{
                 GroupName              = $GroupDisplayName
                 PlanTitle              = $Plan.Title
                 PlanCreatedDate        = $Plan.CreatedDateTime
