@@ -41,17 +41,20 @@ PROCESS {
         $IsTeamsConnected = $Site.IsTeamsConnected
 
         $Results += [PSCustomObject]@{
-            Title                   = $Title
-            "Remove Don't Migrate"  = $null
-            Org                     = $null
-            "Last Content Modified" = $Site.LastContentModifiedDate
-            "Created Date"          = $GroupCreatedDate
-            SizeMB                  = $SizeMb
-            Template                = $Template
-            "Is Teams Connected"    = $IsTeamsConnected
-            "Has Planner"           = $HasPlanner
-            "Member Count"          = $MemberCount
-            Owner                   = $Owner -join " | "
+            Title                                                   = $Title
+            "Remove Don't Migrate"                                  = $null
+            Org                                                     = $null
+            "Not Migrating based on size and not a Team or Planner" = $null     # =IF(OR(J2,K2),"",IF(H2 > 10, "", "X"))
+            "BitTitan License Need"                                 = $null     # =IF(OR(B2="X",C2="X"),"",IF(OR(J2,K2),"Collaboration License","SharePoint Document License"))
+            "Created Date"                                          = $GroupCreatedDate
+            "Last Content Modified"                                 = $Site.LastContentModifiedDate
+            SizeMB                                                  = $SizeMb
+            Template                                                = $Template
+            "Is Teams Connected"                                    = $IsTeamsConnected
+            "Has Planner"                                           = $HasPlanner
+            "Member Count"                                          = $MemberCount
+            Owner                                                   = $Owner -join " | "
+            URL                                                     = $Site.Url
         }
     }
 }
