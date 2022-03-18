@@ -419,7 +419,6 @@ BEGIN {
             }
             elseif ($Name -eq "PrimarySmtpAddress") {
                 $NewValue = $ADUser.UserPrincipalName
-                # $NewValue = ($Data.PrimarySmtpAddress -split "@")[0] + "@dca.ca.gov"
             }
             elseif ($Name -eq "Company") {
                 $NewValue = $Data.Company
@@ -430,15 +429,11 @@ BEGIN {
             elseif ($Name -eq "msExchHideFromAddressLists") {
                 $NewValue = "TRUE"
             }
-            # elseif ($Name -eq "Manager") {
-            #     if ($ADUser.Manager) { return $false }
-            #     if (-not $Data.Manager) { return $false }
-            # }
             elseif ($Name -eq "EmailAddresses") {
                 $x500s = @("x500:$($Data.LegacyExchangeDN)")
                 $x500s += $Data.EmailAddresses -split ";" | Where-Object { $_ -like "x500:*" } | ForEach-Object { $_ -creplace "^X500:", "x500:" }
                 $x500s += $ADUser.ProxyAddresses | Where-Object { $_ -match "^x500" }
-                $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@dca\.ca\.gov$|@dcao365\.mail\.onmicrosoft\.com$|@dcao365\.onmicrosoft\.com$" }
+                $OtherAddresses = $ADUser.ProxyAddresses | Where-Object { $_ -notmatch "^x500" } | Where-Object { $_ -match "@dca\.factorization\.net$|@M365x02168798\.mail\.onmicrosoft\.com$|@M365x02168798\.onmicrosoft\.com$" }
                 if ($OtherAddresses) {
                     $x500s += @($OtherAddresses)
                 }
@@ -569,7 +564,7 @@ BEGIN {
         if($Number){
             $Prefix = $Prefix + "$Number"
         }
-        return $Prefix + "@dca.ca.gov"
+        return $Prefix + "@dca.factorization.net"
     }
     function GetOU($OldUPN, $MailboxType) {
         $Location = GetLocation -OldUPN $OldUPN
