@@ -25,16 +25,19 @@ PROCESS {
             $MemberCount = "n/a"
             $Owner = $Site.Owner
             $HasPlanner = $false
+            $IsTeamsConnected = $false
             $GroupObjectID = "n/a"
             $GroupCreatedDate = "n/a"
         }
         else {
             $MemberCount = Get-UnifiedGroupLinks -Identity $GroupObjectID -LinkType Member | Measure-Object | Select-Object -ExpandProperty Count
             $Owner = Get-UnifiedGroupLinks -Identity $GroupObjectID -LinkType Owner | Select-Object -ExpandProperty WindowsLiveID
-            try{
+
+            # Planner
+            try {
                 $Planners = Get-PnPPlannerPlan -Group $GroupObjectID -ResolveIdentities
             }
-            catch{
+            catch {
                 $err = $_
                 Write-Host "Failed to get planner for site $Title (GroupID $GroupObjectID). Error: $err" -ForegroundColor Red
                 $Planners = $null
@@ -45,16 +48,30 @@ PROCESS {
             else {
                 $HasPlanner = $false
             }
+
             $GroupCreatedDate = Get-UnifiedGroup $GroupObjectID | Select-Object -ExpandProperty WhenCreated
+
+            # Teams
+            try {
+                $teams = Get-Team -GroupId $GroupObjectID
+            }
+            catch {
+                $teams = $null
+            }
+            if ($teams) {
+                $IsTeamsConnected = $true
+            }
+            else {
+                $IsTeamsConnected = $false
+            }
         }
-        $IsTeamsConnected = $Site.IsTeamsConnected
 
         $Results += [PSCustomObject]@{
             Title                                                   = $Title
             "Remove Don't Migrate"                                  = $null
-            Org                                                     = $null
             "Not Migrating based on size and not a Team or Planner" = $null     # =IF(OR(J2,K2),"",IF(H2 > 10, "", "X"))
             "BitTitan License Need"                                 = $null     # =IF(OR(B2="X",C2="X"),"",IF(OR(J2,K2),"Collaboration License","SharePoint Document License"))
+            Org                                                     = $null
             "Created Date"                                          = $GroupCreatedDate
             "Last Content Modified"                                 = $Site.LastContentModifiedDate
             SizeMB                                                  = $SizeMb
