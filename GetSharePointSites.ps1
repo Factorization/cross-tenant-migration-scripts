@@ -5,6 +5,8 @@ param (
     $OutputFile
 )
 BEGIN {
+    $ErrorActionPreference = "Stop"
+
     Write-Host "Getting SharePoint sites..." -ForegroundColor Cyan
     $Sites = Get-SPOSite -Limit All | Where-Object { $_.Title } | Sort-Object Title
 }
