@@ -31,7 +31,14 @@ PROCESS {
         else {
             $MemberCount = Get-UnifiedGroupLinks -Identity $GroupObjectID -LinkType Member | Measure-Object | Select-Object -ExpandProperty Count
             $Owner = Get-UnifiedGroupLinks -Identity $GroupObjectID -LinkType Owner | Select-Object -ExpandProperty WindowsLiveID
-            $Planners = Get-PnPPlannerPlan -Group $GroupObjectID -ResolveIdentities
+            try{
+                $Planners = Get-PnPPlannerPlan -Group $GroupObjectID -ResolveIdentities
+            }
+            catch{
+                $err = $_
+                Write-Host "Failed to get planner for site $Title (GroupID $GroupObjectID). Error: $err" -ForegroundColor Red
+                $Planners = $null
+            }
             if ($Planners) {
                 $HasPlanner = $true
             }
