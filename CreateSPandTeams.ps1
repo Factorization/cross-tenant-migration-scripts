@@ -2,7 +2,11 @@
 param (
     [Parameter(Mandatory = $true)]
     [string]
-    $File
+    $File,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $OutputDir = $PSScriptRoot
 )
 BEGIN{
     $ErrorActionPreference = "stop"
@@ -41,10 +45,12 @@ PROCESS{
 }
 END{
     $Date = Get-Date -Format yyyy-MM-dd_HH.mm
-    $CSV | Export-Csv -NoTypeInformation SharePoint-And-Teams-Site-Created-$Date.csv
-    Write-Host "Created sites saved to CSV: 'SharePoint-And-Teams-Site-Created-$Date.csv'"
+    $SuccessFile = Join-Path $OutputDir "SharePoint-And-Teams-Site-Created-$Date.csv"
+    $CSV | Export-Csv -NoTypeInformation $SuccessFile
+    Write-Host "Created sites saved to CSV: '$SuccessFile'" -ForegroundColor Green
     if($Failed){
-        $Failed | Export-Csv -NoTypeInformation Failed-SharePoint-And-Teams-Sites-$Date.csv
-        Write-Host "Failed sites saved to CSV: 'Failed-SharePoint-And-Teams-Sites-$Date.csv'"
+        $FailedFile = Join-Path $OutputDir "Failed-SharePoint-And-Teams-Sites-$Date.csv"
+        $Failed | Export-Csv -NoTypeInformation $FailedFile
+        Write-Host "Failed sites saved to CSV: '$FailedFile'" -ForegroundColor Red
     }
 }
