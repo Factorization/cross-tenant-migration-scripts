@@ -16,13 +16,15 @@ PROCESS{
     $Total = $CSV | Measure-Object | Select-Object -ExpandProperty Count
     $i = 0
     $Failed = @()
+    $Success = @()
     foreach ($Site in $CSV){
         Write-Progress "Creating SharePoint and Teams sites..." -Status "Total: [$i / $Total] | Site: $($Site.TargetName)" -PercentComplete (($i / $Total) * 100)
         $i++
         if($Site.Teams -eq "TRUE"){
             try{
-                $NewTeam = New-Team -DisplayName -eq $Site.TargetName
+                $NewTeam = New-Team -DisplayName $Site.TargetName -Visibility "Private"
                 $Site.TargetMailNickName = $NewTeam.MailNickName
+                $Success += $Site
             }
             catch{
                 $err = $_
@@ -34,6 +36,7 @@ PROCESS{
             try{
                 $NewSPSite = New-PNPSite -Type TeamSite -Title $Site.TargetName -Alias $Site.TargetName
                 $Site.TargetMailNickName = $Site.TargetName
+                $Success += $Site
             }
             catch{
                 $err = $_
@@ -45,9 +48,11 @@ PROCESS{
 }
 END{
     $Date = Get-Date -Format yyyy-MM-dd_HH.mm
-    $SuccessFile = Join-Path $OutputDir "SharePoint-And-Teams-Site-Created-$Date.csv"
-    $CSV | Export-Csv -NoTypeInformation $SuccessFile
-    Write-Host "Created sites saved to CSV: '$SuccessFile'" -ForegroundColor Green
+    if($Success){
+        $SuccessFile = Join-Path $OutputDir "SharePoint-And-Teams-Site-Created-$Date.csv"
+        $Success | Export-Csv -NoTypeInformation $SuccessFile
+        Write-Host "Created sites saved to CSV: '$SuccessFile'" -ForegroundColor Green
+    }
     if($Failed){
         $FailedFile = Join-Path $OutputDir "Failed-SharePoint-And-Teams-Sites-$Date.csv"
         $Failed | Export-Csv -NoTypeInformation $FailedFile
