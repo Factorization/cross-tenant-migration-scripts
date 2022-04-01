@@ -35,7 +35,7 @@ PROCESS {
         else {
             try {
                 $NewSPSite = New-PNPSite -Type TeamSite -Title $Site.TargetName -Alias $Site.TargetName
-                $Site.TargetMailNickName = $Site.TargetName
+                $Site.TargetMailNickName = $Site.TargetName + "|" + $NewSPSite
                 $Success += $Site
             }
             catch {
