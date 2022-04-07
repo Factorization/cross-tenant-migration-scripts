@@ -10,7 +10,11 @@ param (
 
     [Parameter(Mandatory = $false)]
     [string]
-    $OutputDir = $PSScriptRoot
+    $OutputDir = $PSScriptRoot,
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $ResultFilePrefix = $Null
 )
 BEGIN {
     $ErrorActionPreference = "Stop"
@@ -157,12 +161,20 @@ PROCESS {
 END {
     $Date = Get-Date -Format yyyy-MM-dd_HH.mm
     if ($Results) {
-        $ResultsFile = Join-Path $OutputDir "Mailbox-Delegated-Permissions-Export-$Date.csv"
+        $file = "Mailbox-Delegated-Permissions-Export-$Date.csv"
+        if ($ResultFilePrefix) {
+            $file = $ResultFilePrefix + "-" + $file
+        }
+        $ResultsFile = Join-Path $OutputDir $file
         $Results | Export-Csv -NoTypeInformation $ResultsFile
         Write-Host "Created sites saved to CSV: '$ResultsFile'" -ForegroundColor Green
     }
     if ($ErrorLog) {
-        $ErrorFile = Join-Path $OutputDir "Mailbox-Delegated-Permissions-Export-Errors-$Date.csv"
+        $file = "Mailbox-Delegated-Permissions-Export-Errors-$Date.csv"
+        if ($ResultFilePrefix) {
+            $file = $ResultFilePrefix + "-" + $file
+        }
+        $ErrorFile = Join-Path $OutputDir $file
         $ErrorLog | Export-Csv -NoTypeInformation $ErrorFile
         Write-Host "Failed sites saved to CSV: '$ErrorFile'" -ForegroundColor Red
     }
