@@ -139,17 +139,17 @@ PROCESS {
         $Email = $User.OldUPN
 
         $GrantSendOnBehalfTo = GetGrantSendOnBehalfTo $Email
-        foreach ($result in $GrantSendOnBehalfTo) {
-            $Results += $result
+        if ($GrantSendOnBehalfTo) {
+            $Results += $GrantSendOnBehalfTo
         }
 
         $FullAccess = GetFullAccess $Email
-        foreach ($result in $FullAccess) {
-            $Results += $result
+        if ($FullAccess) {
+            $Results += $FullAccess
         }
 
         $SendAs = GetSendAs $Email
-        foreach ($result in $SendAs) {
+        if ($SendAs) {
             $Results += $SendAs
         }
     }
