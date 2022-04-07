@@ -6,7 +6,7 @@ param (
 
     [Parameter(Mandatory = $false)]
     [string[]]
-    $ExcludeUsers = @("MigrationWiz@cabcsh.onmicrosoft.com"),
+    $ExcludeUsers = @(),
 
     [Parameter(Mandatory = $false)]
     [string]
