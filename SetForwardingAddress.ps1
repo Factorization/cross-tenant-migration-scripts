@@ -10,13 +10,12 @@ BEGIN {
         Write-Host "File $InputFile does not exist. Exiting." -ForegroundColor Red
         exit
     }
-    If (-not $InputFile.EndsWith('.xlsx')) {
-        Write-Host "File $InputFile does not end with '.xlsx'. Exiting." -ForegroundColor Red
+    If (-not $InputFile.EndsWith('.csv')) {
+        Write-Host "File $InputFile does not end with '.csv'. Exiting." -ForegroundColor Red
         exit
     }
 
-    $User_Mailboxes = Import-Excel $InputFile -WorksheetName "User Mailboxes" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-    $Shared_Mailboxes = Import-Excel $InputFile -WorksheetName "Shared Mailboxes" -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+    $Mailboxes = Import-CSV $InputFile
     $DATE = Get-Date -Format yyyy-MM-dd_HH.mm
     $ErrorFile = "Email_Forwarding_Address_Errors_$DATE.csv"
 
@@ -29,8 +28,8 @@ BEGIN {
             Write-Progress -Id 1 -Activity "Setting forwarding addresses..." -Status "Mailboxes: [$i/$Total] | Errors: $ErrorCount" -PercentComplete ($i / $Total * 100)
             $i++
 
-            $Source_Email = $User."Source Mailbox"
-            $Target_Email = $User."Target Mailbox"
+            $Source_Email = $User.SourceEmail
+            $Target_Email = $User.TargetEmail
 
             Try {
                 $Mailbox = Get-Mailbox $Source_Email
@@ -68,20 +67,12 @@ BEGIN {
 }
 PROCESS {
 
-    Write-Verbose "Working on user mailboxes..."
-    if ($User_Mailboxes) {
-        SetForwardingAddresses -Mailboxes $User_Mailboxes
+    Write-Verbose "Working on mailboxes..."
+    if ($Mailboxes) {
+        SetForwardingAddresses -Mailboxes $Mailboxes
     }
     else {
-        Write-Host "No user mailboxes in Excel file." -ForegroundColor Cyan
-    }
-
-    Write-Verbose "Working on shared mailboxes..."
-    if ($Shared_Mailboxes) {
-        SetForwardingAddresses -Mailboxes $Shared_Mailboxes
-    }
-    else {
-        Write-Host "No shared mailboxes in Excel file." -ForegroundColor Cyan
+        Write-Host "No mailboxes in CSV file." -ForegroundColor Cyan
     }
 
 }
