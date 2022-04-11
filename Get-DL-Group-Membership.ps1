@@ -5,7 +5,7 @@ param (
     $ExcludedGroups = @()
 )
 BEGIN {
-    $DLs = Get-DistributionGroup | Sort-Object Name
+    $DLs = Get-DistributionGroup | Sort-Object Name | Where-Object Name -NotIn $ExcludedGroups
 }
 PROCESS {
     foreach ($DL in $DLs) {
@@ -17,7 +17,7 @@ PROCESS {
         else {
             $GroupType = "Distribution List"
         }
-        $Members = Get-DistributionGroupMember $EmailAddress | Where-Object PrimarySMTPAddress | Sort-Object PrimarySMTPAddress | Where-Object Name -NotIn $ExcludedGroups
+        $Members = Get-DistributionGroupMember $EmailAddress | Where-Object PrimarySMTPAddress | Sort-Object PrimarySMTPAddress
         if (-not $Members) {
             [PSCustomObject]@{
                 DisplayName  = $DisplayName
