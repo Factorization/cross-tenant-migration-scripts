@@ -2,10 +2,17 @@
 param (
     [Parameter(Mandatory = $false)]
     [string[]]
-    $ExcludedGroups = @()
+    $ExcludedGroups = @(),
+
+    [Parameter(Mandatory = $false)]
+    [string[]]
+    $IncludedGroups = @()
 )
 BEGIN {
     $DLs = Get-DistributionGroup | Sort-Object Name | Where-Object Name -NotIn $ExcludedGroups
+    if($IncludedGroups){
+        $DLs = $DLs | Where-Object Name -in $IncludedGroups
+    }
 }
 PROCESS {
     foreach ($DL in $DLs) {
