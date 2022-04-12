@@ -57,6 +57,6 @@ END {
         $OutputFile = "Unified-Group-Owners-And-Members-$Date.csv"
         $ResultsFile = Join-Path $OutputDir $OutputFile
         $Results | Export-Csv -NoTypeInformation $ResultsFile
-        Write-Host "Created sites saved to CSV: '$ResultsFile'" -ForegroundColor Green
+        Write-Host "Results saved to CSV: '$ResultsFile'" -ForegroundColor Green
     }
 }
