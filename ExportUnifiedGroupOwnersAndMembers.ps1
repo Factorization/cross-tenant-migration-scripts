@@ -39,7 +39,7 @@ PROCESS{
             }
         }
 
-        foreach ($Owner in $owners){
+        foreach ($Owner in $Owners){
             $Results += [PSCustomObject]@{
                 SourceName = $Group.SourceName
                 SourceMailNickName = $Group.SourceMailNickName
