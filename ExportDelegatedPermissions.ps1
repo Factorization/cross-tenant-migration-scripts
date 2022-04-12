@@ -167,7 +167,7 @@ END {
         }
         $ResultsFile = Join-Path $OutputDir $file
         $Results | Export-Csv -NoTypeInformation $ResultsFile
-        Write-Host "Created sites saved to CSV: '$ResultsFile'" -ForegroundColor Green
+        Write-Host "Results saved to CSV: '$ResultsFile'" -ForegroundColor Green
     }
     if ($ErrorLog) {
         $file = "Mailbox-Delegated-Permissions-Export-Errors-$Date.csv"
@@ -176,7 +176,7 @@ END {
         }
         $ErrorFile = Join-Path $OutputDir $file
         $ErrorLog | Export-Csv -NoTypeInformation $ErrorFile
-        Write-Host "Failed sites saved to CSV: '$ErrorFile'" -ForegroundColor Red
+        Write-Host "Errors saved to CSV: '$ErrorFile'" -ForegroundColor Red
     }
 }
 
