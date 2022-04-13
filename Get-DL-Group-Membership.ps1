@@ -6,12 +6,19 @@ param (
 
     [Parameter(Mandatory = $false)]
     [string[]]
-    $IncludedGroups = @()
+    $IncludedGroups = @(),
+
+    [Parameter(Mandatory = $false)]
+    [string]
+    $GroupFilter = ""
 )
 BEGIN {
     $DLs = Get-DistributionGroup | Sort-Object Name | Where-Object Name -NotIn $ExcludedGroups
-    if($IncludedGroups){
+    if ($IncludedGroups) {
         $DLs = $DLs | Where-Object Name -in $IncludedGroups
+    }
+    if ($GroupFilter) {
+        $DLs = $DLs | Where-Object Name -like "$GroupFilter"
     }
 }
 PROCESS {
