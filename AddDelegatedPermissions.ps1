@@ -10,7 +10,7 @@ param (
 )
 BEGIN {
     $ErrorActionPreference = "Stop"
-    $CSV = Import-Csv $File | Select-Object -First 1
+    $CSV = Import-Csv $File
 
     function AddGrantSendOnBehalfTo($Mailbox, $GrantTo) {
         Set-Mailbox $Mailbox -GrantSendOnBehalfTo @{Add = "$GrantTo" } -ErrorAction Stop | Out-Null
