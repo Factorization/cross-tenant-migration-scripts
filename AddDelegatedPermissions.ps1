@@ -13,13 +13,13 @@ BEGIN {
     $CSV = Import-Csv $File | Select-Object -First 1
 
     function AddGrantSendOnBehalfTo($Mailbox, $GrantTo) {
-        Set-Mailbox $Mailbox -GrantSendOnBehalfTo @{Add = "$GrantTo" } -ErrorAction Stop
+        Set-Mailbox $Mailbox -GrantSendOnBehalfTo @{Add = "$GrantTo" } -ErrorAction Stop | Out-Null
     }
     function AddSendAs($Mailbox, $GrantTo) {
-        Add-RecipientPermission $Mailbox -Trustee $GrantTo -AccessRights SendAs -Confirm:$false
+        Add-RecipientPermission $Mailbox -Trustee $GrantTo -AccessRights SendAs -Confirm:$false -ErrorAction Stop | Out-Null
     }
     function AddFullAs($Mailbox, $GrantTo) {
-        Add-MailboxPermission $Mailbox -User $GrantTo -AccessRights FullAccess
+        Add-MailboxPermission $Mailbox -User $GrantTo -AccessRights FullAccess -ErrorAction Stop | Out-Null
     }
 }
 PROCESS {
