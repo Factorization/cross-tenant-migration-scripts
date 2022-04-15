@@ -39,7 +39,7 @@ PROCESS {
             }
             Catch {
                 $err = $_
-                Write-Host "Failed to add $Permission on $Mailbox to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
+                Write-Host "Failed to add $Permission on $NewEmail to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
                 $ErrorList += $Line
                 continue
             }
@@ -50,7 +50,7 @@ PROCESS {
             }
             Catch {
                 $err = $_
-                Write-Host "Failed to add $Permission on $Mailbox to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
+                Write-Host "Failed to add $Permission on $NewEmail to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
                 $ErrorList += $Line
                 continue
             }
@@ -61,7 +61,7 @@ PROCESS {
             }
             Catch {
                 $err = $_
-                Write-Host "Failed to add $Permission on $Mailbox to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
+                Write-Host "Failed to add $Permission on $NewEmail to $NewUserGrantedPermission. Error: $err" -ForegroundColor Red
                 $ErrorList += $Line
                 continue
             }
