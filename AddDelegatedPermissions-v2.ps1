@@ -27,7 +27,7 @@ PROCESS {
     $i = 0
     $ErrorList = @()
     foreach ($Line in $CSV) {
-        Write-Progress -Activity "Adding delegated permissions..." -Status "Total: [$i / $Total] | Mailbox: $($Line.NewEmail)" -PercentComplete (($i / $Total) * 100)
+        Write-Progress -Activity "Adding delegated permissions..." -Status "Total: [$i / $Total] | Mailbox: $($Line.SharedMailbox)" -PercentComplete (($i / $Total) * 100)
         $i++
         $NewEmail = $line.SharedMailbox
         $NewUserGrantedPermission = $Line.NewMember
