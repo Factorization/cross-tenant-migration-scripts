@@ -29,7 +29,7 @@ PROCESS{
     $results = @()
     foreach ($Line in $CSV){
         $OldEmail = $Line.Email
-        $OldUserGrantedPermission = $Line.OldUserGrantedPermission
+        $OldUserGrantedPermission = $Line.UserGrantedPermission
         $Permission = $line.Permission
 
         $NewEmail = $MappingHash[$OldEmail].NewUPN
