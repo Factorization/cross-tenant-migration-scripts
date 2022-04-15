@@ -15,7 +15,7 @@ BEGIN {
         exit
     }
 
-    $Mailboxes = Import-CSV $InputFile | Select-Object -First 1
+    $Mailboxes = Import-CSV $InputFile
     $DATE = Get-Date -Format yyyy-MM-dd_HH.mm
     $ErrorFile = "Email_Forwarding_Address_Errors_$DATE.csv"
 
