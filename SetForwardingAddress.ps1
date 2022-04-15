@@ -15,7 +15,7 @@ BEGIN {
         exit
     }
 
-    $Mailboxes = Import-CSV $InputFile
+    $Mailboxes = Import-CSV $InputFile | Select-Object -First 1
     $DATE = Get-Date -Format yyyy-MM-dd_HH.mm
     $ErrorFile = "Email_Forwarding_Address_Errors_$DATE.csv"
 
@@ -47,7 +47,7 @@ BEGIN {
             }
 
             Try {
-                # Set-Mailbox $Source_Email -DeliverToMailboxAndForward $true -ForwardingSMTPAddress $Target_Email
+                Set-Mailbox $Source_Email -DeliverToMailboxAndForward $true -ForwardingSMTPAddress $Target_Email
                 Write-Verbose "Set forwarding address for $Source_Email to $Target_Email"
             }
             Catch {
