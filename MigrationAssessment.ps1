@@ -14,9 +14,9 @@ param (
 )
 BEGIN {
     $ErrorActionPreference = "Stop"
-    Connect-ExchangeOnline
-    Connect-SPOService -Url $SharePointAdminUrl
-    Connect-MicrosoftTeams
+    Connect-ExchangeOnline -ShowBanner:$false | Out-Null
+    Connect-SPOService -Url $SharePointAdminUrl | Out-Null
+    Connect-MicrosoftTeams | Out-Null
 }
 Process {
     # Email
@@ -85,6 +85,7 @@ Process {
     Write-Host "DONE" -ForegroundColor Green
 }
 END {
+    Write-Host
     Write-Host "Excel report saved to: " -NoNewline
     Write-Host $Path -ForegroundColor Green
 
@@ -98,8 +99,9 @@ Teams Sites         = $($Teams | Measure-Object | Select-Object -ExpandProperty 
     Write-Host "Results Summary"
     Write-Host "---------------"
     Write-Host $Summary
+    Write-Host
 
-    Disconnect-ExchangeOnline -Confirm:$false | Out-Null
-    Disconnect-SPOService
+    Disconnect-ExchangeOnline -Confirm:$false *>&1 | Out-Null
+    Disconnect-SPOService | Out-Null
     Disconnect-MicrosoftTeams -Confirm:$false | Out-Null
 }
