@@ -91,7 +91,7 @@ END {
 
     $Summary = @"
 Mailboxes           = $($Mailboxes | Where-Object {$_.RecipientTypeDetails -match 'UserMailbox|SharedMailbox|RoomMailbox|EquipmentMailbox'} | Measure-Object | Select-Object -ExpandProperty Count)
-SharePoint Sites    = $($SharePoint_Sites | Measure-Object | Select-Object -ExpandProperty Count)
+SharePoint Sites    = $($SharePoint_Sites | Where-Object IsTeamsConnected -eq $false | Measure-Object | Select-Object -ExpandProperty Count)
 OneDrive Sites      = $($OneDrive_Sites | Measure-Object | Select-Object -ExpandProperty Count)
 Teams Sites         = $($Teams | Measure-Object | Select-Object -ExpandProperty Count)
 "@
