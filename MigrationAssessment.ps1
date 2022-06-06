@@ -17,6 +17,7 @@ BEGIN {
     Connect-ExchangeOnline -ShowBanner:$false | Out-Null
     Connect-SPOService -Url $SharePointAdminUrl | Out-Null
     Connect-MicrosoftTeams | Out-Null
+    Connect-AzureAD | Out-Null
 }
 Process {
     # Email
@@ -81,7 +82,18 @@ Process {
     Write-Host "DONE" -ForegroundColor Green
     Write-Host "Saving Teams data to Excel file..." -NoNewline
     $Teams_stats | Select-Object DisplayName, MemberCount, Owner | `
+        Sort-Object DisplayName | `
         Export-Excel -WorksheetName "Teams" -Path $Path -AutoSize -FreezeTopRow -AutoFilter
+    Write-Host "DONE" -ForegroundColor Green
+
+    # Guests
+    Write-Host "Getting Azure AD guests..." -NoNewline
+    $Guests = Get-AzureADUser -Filter "UserType eq 'Guest'" -All $true
+    Write-Host "DONE" -ForegroundColor Green
+    Write-Host "Saving guests data to Excel file..." -NoNewline
+    $Guests | Select-Object DisplayName, Mail, AccountEnabled, UserState | `
+        Sort-Object DisplayName | `
+        Export-Excel -WorksheetName "Guests" -Path $Path -AutoSize -FreezeTopRow -AutoFilter
     Write-Host "DONE" -ForegroundColor Green
 }
 END {
@@ -94,6 +106,7 @@ Mailboxes           = $($Mailboxes | Where-Object {$_.RecipientTypeDetails -matc
 SharePoint Sites    = $($SharePoint_Sites | Where-Object IsTeamsConnected -eq $false | Measure-Object | Select-Object -ExpandProperty Count)
 OneDrive Sites      = $($OneDrive_Sites | Measure-Object | Select-Object -ExpandProperty Count)
 Teams Sites         = $($Teams | Measure-Object | Select-Object -ExpandProperty Count)
+Guests              = $($Guests | Measure-Object | Select-Object -ExpandProperty Count)
 "@
     Write-Host
     Write-Host "Results Summary"
@@ -104,4 +117,5 @@ Teams Sites         = $($Teams | Measure-Object | Select-Object -ExpandProperty 
     Disconnect-ExchangeOnline -Confirm:$false *>&1 | Out-Null
     Disconnect-SPOService | Out-Null
     Disconnect-MicrosoftTeams -Confirm:$false | Out-Null
+    Disconnect-AzureAD -Confirm:$false | Out-Null
 }
