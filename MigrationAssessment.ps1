@@ -14,10 +14,18 @@ param (
 )
 BEGIN {
     $ErrorActionPreference = "Stop"
+    Write-Host "Connecting to Exchange Online..." -NoNewline
     Connect-ExchangeOnline -ShowBanner:$false | Out-Null
+    Write-Host "CONNECTED" -ForegroundColor Cyan
+    Write-Host "Connecting to SharePoint Online..." -NoNewline
     Connect-SPOService -Url $SharePointAdminUrl | Out-Null
+    Write-Host "CONNECTED" -ForegroundColor Cyan
+    Write-Host "Connecting to Teams..." -NoNewline
     Connect-MicrosoftTeams | Out-Null
+    Write-Host "CONNECTED" -ForegroundColor Cyan
+    Write-Host "Connecting to Azure AD..." -NoNewline
     Connect-AzureAD | Out-Null
+    Write-Host "CONNECTED" -ForegroundColor Cyan
 }
 Process {
     # Email
@@ -114,8 +122,10 @@ Guests              = $($Guests | Measure-Object | Select-Object -ExpandProperty
     Write-Host $Summary
     Write-Host
 
+    Write-Host "Disconnecting from all M365 cloud services..." -NoNewline
     Disconnect-ExchangeOnline -Confirm:$false *>&1 | Out-Null
     Disconnect-SPOService | Out-Null
     Disconnect-MicrosoftTeams -Confirm:$false | Out-Null
     Disconnect-AzureAD -Confirm:$false | Out-Null
+    Write-Host "DISCONNECTED" -ForegroundColor Cyan
 }
